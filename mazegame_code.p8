@@ -133,7 +133,7 @@ function _draw()
 	spr(player.sprite_num, player.x, player.y)
 	-- reset camera for screen-space HUD and crosshair
 	camera()
-	print(current_time, 0, 0, 7)
+	renderTopHud()
 	line(mx - 4, my, mx + 4, my, 7)
 	line(mx, my - 4, mx, my + 4, 7)
 	handle_keys()
