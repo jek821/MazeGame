@@ -4,7 +4,7 @@ Maze Game Audit — May 21st, 2026
 test_room
 ---------
 - Looks good; structure is abstract enough to fit all room types.
-- [*] The * 8 logic to compensate for sprite area / pixel location mismatch is something to think about further.
+- The * 8 logic to compensate for sprite area / pixel location mismatch is something to think about further.
  
 start_time and pellets
 ----------------------
@@ -17,13 +17,13 @@ Player State Table
     - cam_x and cam_y
 - Elements that need to move to shotgun state:
     - shoot_cooldown
-    - ammo — [*] not currently integrated into shooter logic
+    - ammo —  not currently integrated into shooter logic
  
 spawnItemAroundRoom()
 ---------------------
 - Needs a better name.
 - Does not need if itemId == branching — spawn logic is the same for all item types.
-- [*] Should have a table associating item names (e.g. "coin", "ammo") to asset/sprite IDs instead.
+-  Should have a table associating item names (e.g. "coin", "ammo") to asset/sprite IDs instead.
  
 renderRoomItems()
 -----------------
@@ -38,14 +38,14 @@ detectItemOnPlayer()
 handle_keys()
 -------------
 - Looks complex but is not fundamentally bad.
-- [*] Potential optimization: maintain a table of only the valid/used key codes and iterate over those instead of checking all 256 keys every frame.
+-  Potential optimization: maintain a table of only the valid/used key codes and iterate over those instead of checking all 256 keys every frame.
  
 is_solid()
 ----------
 - Looks good.
 - The local variables mx/my inside this function are map tile coordinates (map x / map y), not mouse
   coordinates — renamed to tile_x / tile_y to avoid confusion with the global mouse mx/my. (Fixed.)
-- [*] A table associating flag numbers to semantic names would improve readability.
+-  A table associating flag numbers to semantic names would improve readability.
   Example: flags = { solid = 1, wall = 2, ... }
  
 _init()
