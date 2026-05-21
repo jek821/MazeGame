@@ -2,5 +2,13 @@ TEST ROOM COORDIANTES
 Top left (x:0 y:0)
 Bottom Right (x:17 y:13) 
 
-ASSET SHEETS
- gun(4), sword(5), coin(34), zombie(17,18,19,20), ritual symbols(21,22,37,38), pages(32,33,48,49), ammo(3), and broken clock(16)
+SPRITES:
+gun(4) 
+sword(5)
+coin(34) 
+zombies(D_LEFT=17, D_RIGHT=18, U_RIGHT=19, U_LEFT20)
+ritual_symbols(21,22,37,38), 
+pages(32,33,48,49)
+ammo(3)
+broken clock(16)
+player(DOWN=7, UP=23, RIGHT=8, LEFT=24)
