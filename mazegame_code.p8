@@ -28,7 +28,7 @@ player = {
 	current_room = test_room,
 	coins = 0,
 	cam_x = 0,
-	cam_y, 0
+	cam_y = 0
 }
 
 --spawn item in room (random places)
@@ -110,9 +110,9 @@ end
 
 function is_solid(x, y)
 	-- convert pixel position to map tile position
-	local mx = flr(x / 8)
-	local my = flr(y / 8)
-	local tile = mget(mx, my)
+	local tile_x = flr(x / 8)
+	local tile_y = flr(y / 8)
+	local tile = mget(tile_x, tile_y)
 	return fget(tile, 1)
 	-- flag 0 is the first flag (what pico-8 calls "flag 1" in the editor)
 end
@@ -167,7 +167,6 @@ function _update60()
 		player.shoot_cooldown -= 1
 	end
 
-	handle_keys()
 
 	for p in all(pellets) do
 		p.x += p.dx
