@@ -1,20 +1,8 @@
 Maze Game Audit — May 21st, 2026
 =================================
  
-test_room
----------
-- Looks good; structure is abstract enough to fit all room types.
-- The * 8 logic to compensate for sprite area / pixel location mismatch is something to think about further.
- 
-start_time and pellets
-----------------------
-- Should exist in world/game state (which does not currently exist).
- 
 Player State Table
 ------------------
-- Elements that need to move to world/game state:
-    - current_room
-    - cam_x and cam_y
 - Elements that need to move to shotgun state:
     - shoot_cooldown
     - ammo —  not currently integrated into shooter logic
@@ -71,4 +59,20 @@ _draw()
 -------
 - Need more dedicated render functions to hold drawing logic — _draw() should only orchestrate
   calls, not contain inline drawing code.
+ 
+
+
+
+Future Ideas:
+
+flash/dodge mechanic: leave particles behind and maybe a blur in direction. 
+
+Particles (random generated colors of single pixel in area...)
+  - can be used when guard fades
+
+
+
+
+
+
  

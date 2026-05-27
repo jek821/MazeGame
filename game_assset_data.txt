@@ -12,3 +12,11 @@ pages(32,33,48,49)
 ammo(3)
 broken clock(16)
 player(DOWN=7, UP=23, RIGHT=8, LEFT=24)
+
+
+
+Sounds: 
+
+CoinPickup: music(0)
+
+ShotgunBlast: music(1)
