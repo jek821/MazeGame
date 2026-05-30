@@ -2,6 +2,14 @@ pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
 --==========
+-- Sprite Flags
+--==========
+flags = {
+	solid = 1
+}
+
+
+--==========
 -- ROOM DEFINITIONS
 --==========
 
@@ -13,13 +21,14 @@ test_room = {
 	bottom_rightx = 16 * 8,
 	bottom_righty = 12 * 8,
 	items = {
-		-- { 34, x = 0, y = 0 }
+		-- { sprite_id, x_pos, y_pos}
 	}
 }
 
 --==========
 -- STATES
 --==========
+
 
 --GUN STATE
 Shotgun = {
@@ -49,6 +58,9 @@ Game = {
 	current_room = test_room,
 	cam_x = 0,
 	cam_y = 0
+	zombies = {
+		-- {id: int, health: int, pursing: boolean}
+	}
 }
 
 --==========
@@ -57,7 +69,7 @@ Game = {
 
 --GUN HELPERS
 function can_shoot_shotgun()
-	if mb == 1 and Shotgun.shoot_cooldown == 0 and Shotgun.reloading == false and Shotgun.current_rounds > 0 then
+	if Shotgun.shoot_cooldown == 0 and Shotgun.reloading == false and Shotgun.current_rounds > 0 then
 		return true
 	end
 	return false
@@ -107,6 +119,7 @@ end
 function godMode()
 	Shotgun.current_rounds = 1000
 	Player.health = 100000
+end
 
 function detectItemOnPlayer()
 	for item in all(Game.current_room.items) do
@@ -126,11 +139,15 @@ function is_solid(x, y)
 	local tile_x = flr(x / 8)
 	local tile_y = flr(y / 8)
 	local tile = mget(tile_x, tile_y)
-	return fget(tile, 1)
+	return fget(tile, flags.solid)
 	-- flag 0 is the first flag (what pico-8 calls "flag 1" in the editor)
 end
 
---===========	
+
+--==========
+-- Enemy Helpers
+--==========
+
 
 --===========
 -- USER INPUT
@@ -145,35 +162,35 @@ function handle_keys()
 			-- W
 			if i == 26 then
 				Player.sprite_num = 23
-				if not is_solid(Player.x, Player.y - 1) then
+				if not is_solid(Player.x, Player.y - 1) and not is_solid(Player.x + 7, Player.y - 1) then
 					Player.y -= 1
 				end
 			end
 			-- d
 			if i == 7 then
 				Player.sprite_num = 8
-				if not is_solid(Player.x + 7, Player.y) then
+				if not is_solid(Player.x + 8, Player.y) and not is_solid(Player.x + 8, Player.y + 7) then
 					Player.x += 1
 				end
 			end
 			-- s
 			if i == 22 then
 				Player.sprite_num = 7
-				if not is_solid(Player.x, Player.y + 8) then
+				if not is_solid(Player.x, Player.y + 8) and not is_solid(Player.x + 7, Player.y + 8) then
 					Player.y += 1
 				end
 			end
 			-- a
 			if i == 4 then
 				Player.sprite_num = 24
-				if not is_solid(Player.x - 1, Player.y) then
+				if not is_solid(Player.x - 1, Player.y) and not is_solid(Player.x - 1, Player.y + 7) then
 					Player.x -= 1
 				end
 			end
 		end
 	end
 	-- z
-	if can_shoot_shotgun() then
+	if mb == 1 and can_shoot_shotgun() then
 		-- 4 offset is so it comes from inside the character
 		fire_shotgun(Player.x + 4, Player.y + 4, Player.aim)
 		Shotgun.shoot_cooldown = 50
