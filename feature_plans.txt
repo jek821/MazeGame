@@ -1,0 +1,59 @@
+Maze Game Feature Plans
+=======================
+
+
+PORTAL SYSTEM
+-------------
+
+Entry Spawn Points
+- Each room needs to define where the player spawns when arriving through a portal.
+- Currently portals only define a trigger position and destination room — there is no entry
+  position defined in the destination.
+- Proposed: each portal object gets entry_x and entry_y fields defining the pixel position
+  the player is placed at in the destination room. This keeps entry data co-located with
+  the portal that triggers it.
+  Example: {x=2*8, y=5*8, destination=Test_Room, entry_x=104*8, entry_y=13*8}
+- Test_Room also needs items and portals fields added before transitions can work without errors.
+
+
+ZOMBIE AI
+---------
+
+Data
+- Each zombie is a table: {x, y, health, speed}
+- Stored in Game.zombies
+- Spawned via spawn_zombie(x, y) which builds the table and adds it to Game.zombies
+- Despawned when the player leaves the room (simple despawn for now, persist state later)
+
+Flow Field (Pathfinding)
+- The map is treated as an implicit graph — no explicit nodes or edges stored
+- Adjacency is computed on the fly: two tiles are connected if they are adjacent and neither is solid
+- BFS is run from the player's current tile outward, skipping solid tiles
+- Produces a distance table: every reachable tile gets a step-count distance to the player
+- BFS only re-runs when the player moves to a new tile (tiles are 8px wide, so at most once every 8 frames)
+- The flow field only needs to cover the current room — bounded and cheap
+- Each zombie reads its current tile and its 4 neighbors from the distance table,
+  steps toward the neighbor with the lowest value (greedy on precomputed optimal structure)
+
+Movement
+- Zombies move pixel-by-pixel toward the center of their next target tile
+- Wall collision is handled implicitly — solid tiles never receive a distance value,
+  so zombies never choose them as a step target
+
+Collision (checked every frame in update_zombies())
+- Zombie vs player: abs distance check, same pattern as detectItemOnPlayer()
+- Zombie vs pellet: nested loop over Shotgun.pellets, distance check,
+  remove pellet and reduce zombie health, remove zombie if health <= 0
+
+Rendering
+- render_zombies() called in _draw() inside the world-space camera section,
+  before the camera() reset
+
+
+FUTURE IDEAS
+------------
+
+- Flash/dodge mechanic: leave particles behind and maybe a blur in direction.
+- Particles (random generated colors of single pixel in area...)
+    - can be used when guard fades
+- Line-of-sight and noise-based zombie alerting (zombies start idle, pursue on detection)

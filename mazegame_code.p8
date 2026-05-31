@@ -2,6 +2,22 @@ pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
 --==========
+-- Debug GusCHung
+--==========
+touching_portal = false 
+
+
+
+
+--==========
+-- AI Movement
+--==========
+
+
+
+
+
+--==========
 -- Sprite Flags
 --==========
 flags = {
@@ -13,7 +29,15 @@ flags = {
 -- ROOM DEFINITIONS
 --==========
 
-test_room = {
+Test_Room = {
+	top_leftx = 103 * 8,
+	top_lefty = 12 * 8, 
+	bottom_rightx = 126 * 8,
+	bottom_righty = 30 * 8
+}
+
+
+Main_Room = {
 	-- * 8 because each "pixel" is a sprite which is actually 8 pixels...
 	-- Offset by 1 pixel ine very direction from room listed coordinates, to exclude walls
 	top_leftx = 1 * 8,
@@ -22,6 +46,9 @@ test_room = {
 	bottom_righty = 12 * 8,
 	items = {
 		-- { sprite_id, x_pos, y_pos}
+	},
+	portals = {
+		{x = 2*8, y = 5*8, destination = Test_Room}
 	}
 }
 
@@ -35,7 +62,7 @@ Shotgun = {
 	pellets = {},
 	shoot_cooldown = 0,
 	max_rounds = 6,
-	current_rounds = 0,
+	current_rounds = 6,
 	reloading = false
 }
 
@@ -46,8 +73,6 @@ Player = {
 	y = 64,
 	aim = 0,
 	ammo = 10,
-	mx = 0,
-	my = 0,
 	health = 100,
 	coins = 0
 }
@@ -55,11 +80,15 @@ Player = {
 -- GAME STATE
 Game = {
 	start_time = 100,
-	current_room = test_room,
+	current_time = 0,
+	current_room = Main_Room,
 	cam_x = 0,
-	cam_y = 0
+	cam_y = 0,
+	mx = 0,
+	my = 0,
+	mb = 0,
 	zombies = {
-		-- {id: int, health: int, pursing: boolean}
+		-- {x, y, health, speed}
 	}
 }
 
@@ -96,6 +125,17 @@ end
 
 -- ROOM HELPERS
 
+function checkCurrentRoomPortals()
+	for portal in all(Game.current_room.portals) do
+		if abs(portal.x - Player.x) < 8 and abs(portal.y - Player.y) < 8 then
+			touching_portal = true
+			return
+		end
+		touching_portal = false
+
+	end
+end
+
 function renderRoomItems(room)
 	for item in all(room.items) do
 		spr(item.id, item.x, item.y)
@@ -105,8 +145,8 @@ end
 function randomItemSpawnInRoom(room, itemId, numItems)
 	if itemId == 34 then
 		for i = 0, numItems do
-			rnd_x = flr(rnd(room.bottom_rightx - room.top_leftx) + room.top_leftx)
-			rnd_y = flr(rnd(room.bottom_righty - room.top_lefty) + room.top_lefty)
+			local rnd_x = flr(rnd(room.bottom_rightx - room.top_leftx) + room.top_leftx)
+			local rnd_y = flr(rnd(room.bottom_righty - room.top_lefty) + room.top_lefty)
 			add(
 				room.items, { id = itemId, x = rnd_x, y = rnd_y }
 			)
@@ -140,7 +180,6 @@ function is_solid(x, y)
 	local tile_y = flr(y / 8)
 	local tile = mget(tile_x, tile_y)
 	return fget(tile, flags.solid)
-	-- flag 0 is the first flag (what pico-8 calls "flag 1" in the editor)
 end
 
 
@@ -190,7 +229,7 @@ function handle_keys()
 		end
 	end
 	-- z
-	if mb == 1 and can_shoot_shotgun() then
+	if Game.mb == 1 and can_shoot_shotgun() then
 		-- 4 offset is so it comes from inside the character
 		fire_shotgun(Player.x + 4, Player.y + 4, Player.aim)
 		Shotgun.shoot_cooldown = 50
@@ -200,21 +239,18 @@ end
 function _init()
 	-- init track mouse pos
 	poke(0x5f2d, 1)
-	--randomItemSpawnInRoom(test_room, 34, 10)
+	--randomItemSpawnInRoom(Main_Room, 34, 10)
 end
 
 function _update60()
-	-- get_mouse_values
-	mx = stat(32)
-	-- get x
-	my = stat(33)
-	-- get y
-	mb = stat(34)
+	Game.mx = stat(32)
+	Game.my = stat(33)
+	Game.mb = stat(34)
 	Game.cam_x = Player.x - 64
 	Game.cam_y = Player.y - 64
 
-	local world_mx = mx + Game.cam_x
-	local world_my = my + Game.cam_y
+	local world_mx = Game.mx + Game.cam_x
+	local world_my = Game.my + Game.cam_y
 
 	local px = Player.x
 	local py = Player.y
@@ -237,14 +273,15 @@ function _update60()
 		end
 	end
 
-	seconds = time()
-	current_time = max(0, Game.start_time - flr(seconds))
+	local seconds = time()
+	Game.current_time = max(0, Game.start_time - flr(seconds))
 	handle_keys()
 	detectItemOnPlayer()
+	checkCurrentRoomPortals()
 end
 
 function renderTopHud()
-	local hud = current_time
+	local hud = Game.current_time
 	spr(34, 45, -2)
 	print(Player.coins, 40, 0, 12)
 	print(hud, 0, 0, 7)
@@ -253,16 +290,23 @@ end
 function _draw()
 	cls()
 	camera(Player.x - 64, Player.y - 64)
-	spr(64, 7, 6)
 	map()
 	for p in all(Shotgun.pellets) do
 		pset(p.x, p.y, 8)
 	end
-	renderRoomItems(test_room)
+	renderRoomItems(Game.current_room)
 	spr(Player.sprite_num, Player.x, Player.y)
 	-- reset camera for screen-space HUD and crosshair
 	camera()
 	renderTopHud()
-	line(mx - 4, my, mx + 4, my, 7)
-	line(mx, my - 4, mx, my + 4, 7)
+	line(Game.mx - 4, Game.my, Game.mx + 4, Game.my, 7)
+	line(Game.mx, Game.my - 4, Game.mx, Game.my + 4, 7)
+	
+
+
+	-- DEBUG GUS CHUNG
+	if touching_portal then
+		print("PORTAL TOUCHED!")
+	end
+
 end

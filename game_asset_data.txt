@@ -1,0 +1,50 @@
+ROOM COORDINATES
+================
+
+Main Room
+  Top Left:     (x: 0,   y: 0)
+  Bottom Right: (x: 17,  y: 13)
+
+Test Room
+  Top Left:     (x: 103, y: 12)
+  Bottom Right: (x: 126, y: 30)
+
+
+
+
+PORTAL COORDINATES
+==================
+Main Room --> Test Room (x: 2, y: 5)
+
+SPRITES
+=======
+
+Player
+  DOWN  = 7
+  RIGHT = 8
+  UP    = 23
+  LEFT  = 24
+
+Zombie
+  D_LEFT  = 17
+  D_RIGHT = 18
+  U_RIGHT = 19
+  U_LEFT  = 20
+
+Items
+  gun          = 4
+  sword        = 5
+  ammo         = 3
+  coin         = 34
+  broken_clock = 16
+
+Decor
+  ritual_symbols = 21, 22, 37, 38
+  pages          = 32, 33, 48, 49
+
+
+SOUNDS
+======
+
+  CoinPickup   : music(0)
+  ShotgunBlast : music(1)
