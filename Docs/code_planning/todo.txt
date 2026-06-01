@@ -1,0 +1,87 @@
+Maze Game TODO
+==============
+Last audited: May 21st, 2026
+
+
+FIXES  (problems in existing code)
+====================================
+
+Player.ammo
+- Still in Player state but not wired into shooter logic.
+
+spawn_items_in_room()
+- No is_solid() check — items regularly spawn inside wall tiles.
+- Fix: reject and re-roll x/y if is_solid(x, y) is true.
+- No item-type branching needed; spawn logic is the same for all types.
+- Should use a lookup table mapping item names to sprite IDs instead of magic numbers.
+
+render_room_items()
+- Remove the room parameter; get current room from Game.current_room instead.
+
+detect_item_on_player()
+- Should be a generic collision check that takes two objects and checks for overlap.
+- Each frame, call it for every object the player could collide with (coins, ammo, zombies).
+- Allows pickup logic and damage-taking to be separate handlers per object type.
+
+handle_keys()
+- Iterates all 256 key codes every frame but only uses 4 (w=26, s=22, a=4, d=7).
+- Fix: replace the loop with a small table {26="up", 22="down", 4="left", 7="right"}
+  and iterate only those 4 entries. Eliminates 252 wasted stat(28,i) calls per frame.
+
+touching_portal
+- Loose global defined at the top of player.lua.
+- Should move into Game state (e.g. Game.touching_portal).
+
+check_current_room_portals()
+- Sets touching_portal flag but never transitions the player — stub.
+- Needs to: set Game.current_room = portal.ref.destination and
+  Player.x = tile_to_px(portal.ref.dest_x), Player.y = tile_to_px(portal.ref.dest_y).
+
+is_solid()
+- Looks good as-is.
+- Note: if the dynamic map component system is adopted, is_solid() will need the
+  two-step screen→tile conversion (see dynamicMapPlan.html).
+
+_init()
+- Item spawning should move into a dedicated enter_room() function so it works
+  on room transitions, not just at startup.
+
+_update60()
+- shoot_cooldown decrement and pellet life/deletion should live in update_gun().
+  (May already be partially done — verify.)
+- Timer/HUD state changes should move to an update_hud() function.
+
+render_top_hud()
+- Move to a state table: top_hud = {{sprite, value, x, y}, ...}
+  and iterate over it to render instead of hardcoding each element.
+
+_draw()
+- Needs more dedicated render functions. _draw() should only orchestrate calls,
+  not contain inline drawing code.
+
+
+NEXT UP  (features to implement)
+==================================
+
+Portal transitions
+- On trigger: set Game.current_room = portal.ref.destination and
+  Player.x/y = tile_to_px(portal.ref.dest_x / dest_y).
+- Despawn current room's items and zombies on exit via enter_room().
+
+Zombie AI
+- See zombieMovementPlan.html for BFS pathfinding design, worked example,
+  pseudocode, and performance notes.
+- Data: each zombie is {x, y, health, speed}, stored in Game.zombies.
+- spawn_zombie(x, y) builds the table and adds to Game.zombies.
+- Despawn on room exit; persist state later.
+- update_zombies(): zombie vs player distance check; zombie vs pellet nested loop
+  (remove pellet, reduce health, remove zombie if health <= 0).
+- render_zombies() called in _draw() inside the camera block, before camera() reset.
+
+
+BACKLOG  (future ideas)
+========================
+
+- Flash/dodge mechanic: leave particles behind, motion blur in movement direction.
+- Particles: random single pixels in an area; trigger on guard fade.
+- Line-of-sight and noise-based zombie alerting (idle until player detected).
