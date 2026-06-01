@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Map System — Design Doc</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #0d0f0d;
+    --panel: #141714;
+    --border: #2a3a2a;
+    --green: #4caf50;
+    --green-dim: #2d6e31;
+    --red: #e05252;
+    --yellow: #d4a843;
+    --text: #c8d8c8;
+    --muted: #6a836a;
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'Barlow', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 48px 24px;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; }
+
+  /* ---- Header ---- */
+  .doc-header {
+    border-left: 3px solid var(--green);
+    padding-left: 20px;
+    margin-bottom: 48px;
+  }
+  .doc-header .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .doc-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e8f0e8;
+    line-height: 1.2;
+  }
+  .doc-header .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 6px;
+    font-family: var(--mono);
+  }
+
+  /* ---- Sections ---- */
+  section { margin-bottom: 40px; }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ---- Panel ---- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+  }
+
+  p { margin-bottom: 10px; color: var(--text); }
+  p:last-child { margin-bottom: 0; }
+
+  /* ---- Steps ---- */
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--green);
+    background: #1a2e1a;
+    border: 1px solid var(--green-dim);
+    border-radius: 3px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-body strong {
+    display: block;
+    font-weight: 600;
+    color: #e8f0e8;
+    margin-bottom: 4px;
+  }
+  .step-body p { margin-bottom: 0; font-size: 14px; }
+
+  /* ---- Callouts ---- */
+  .callout {
+    border-left: 3px solid;
+    padding: 12px 16px;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+  .callout.warn  { border-color: var(--yellow); background: #1e1a0d; color: #c8b87a; }
+  .callout.ok    { border-color: var(--green);  background: #0d1e0d; color: #90c890; }
+  .callout.err   { border-color: var(--red);    background: #1e0d0d; color: #d09090; }
+  .callout strong { font-weight: 600; }
+
+  /* ---- Code / mono ---- */
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: #0a0f0a;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #88b8d8;
+  }
+
+  /* ---- Layout helpers ---- */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  .sub-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  ul { padding-left: 20px; font-size: 14px; color: var(--text); }
+  ul li { margin-bottom: 6px; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  /* ---- Coordinate diagram ---- */
+  .coord-diagram {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .coord-space { flex: 1; min-width: 200px; }
+  .coord-box {
+    position: relative;
+    width: 100%;
+    padding-bottom: 90%;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    background: #0a120a;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .coord-box-inner { position: absolute; inset: 0; }
+  .coord-origin {
+    position: absolute;
+    top: 6px; left: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .coord-component {
+    position: absolute;
+    border: 2px solid var(--green-dim);
+    background: #152515;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+    text-align: center;
+    line-height: 1.4;
+  }
+  .coord-dot {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .coord-label {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  .coord-arrow-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    padding-top: 30px;
+  }
+  .arrow-symbol { font-size: 22px; color: var(--muted); }
+  .arrow-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    max-width: 60px;
+    line-height: 1.4;
+  }
+
+  /* ---- Fields table ---- */
+  .fields-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 24px;
+    align-items: baseline;
+    margin-top: 14px;
+  }
+  .field-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--green);
+    white-space: nowrap;
+  }
+  .field-desc { font-size: 14px; color: var(--text); line-height: 1.5; }
+  .field-type {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ---- Conversion chain ---- */
+  .conv-chain { display: flex; flex-direction: column; gap: 0; margin-top: 14px; }
+  .conv-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .conv-row:last-child { border-bottom: none; }
+  .conv-formula {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: #88b8d8;
+  }
+  .conv-note { font-size: 13px; color: var(--muted); text-align: right; max-width: 260px; }
+
+  /* ---- Component catalog ---- */
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .catalog-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .catalog-item.flagged {
+    border-color: #5a4a18;
+    background: #100e06;
+  }
+  .type-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  .catalog-item.flagged .type-name { color: var(--yellow); }
+  .type-exits {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* 3x3 schematic grid */
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 26px);
+    grid-template-rows: repeat(3, 26px);
+    gap: 2px;
+  }
+  .cc {
+    width: 26px; height: 26px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-family: var(--mono);
+  }
+  .cc.wall   { background: #283828; color: transparent; }
+  .cc.pass   { background: #0d180d; color: transparent; }
+  .cc.open   { background: #0d180d; color: var(--green); }
+
+  /* ---- Catalog flag legend ---- */
+  .flag-legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    font-family: var(--mono);
+  }
+  .flag-swatch {
+    width: 14px; height: 14px;
+    border-radius: 2px;
+    border: 1px solid #5a4a18;
+    background: #100e06;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="tag">PICO-8 · Design Document</div>
+    <h1>Dynamic Map System</h1>
+    <div class="subtitle">Screen-Space Component Rendering · Tile Lookup via Map Position</div>
+  </div>
+
+  <!-- Overview -->
+  <section>
+    <h2>Overview</h2>
+    <div class="panel">
+      <p>Rather than hand-placing every corridor and junction on the tilemap, the game assembles its layout at runtime from reusable <strong>components</strong> — hallway pieces designed once in the map editor and wired together in code. The camera locks to whichever component the player is currently inside. A hard-cut transition fires the moment they cross a boundary edge.</p>
+      <p>This system <strong>coexists with the existing portal system</strong>. Portals handle instant long-distance travel between named rooms. Components handle physical traversal through corridors and connected areas.</p>
+      <div class="callout ok" style="margin-top:4px;">
+        <strong>Minimum component width: 128px (16 tiles).</strong> This guarantees the screen is always fully covered so the hard-cut transition never reveals black edges.
+      </div>
+    </div>
+  </section>
+
+  <!-- Coordinate Spaces -->
+  <section>
+    <h2>Two Coordinate Spaces</h2>
+    <div class="panel">
+      <p>Each component occupies a position in the map editor (where its tiles live) and a position on screen (where those tiles get drawn). These are independent — moving a component in the map editor has no effect on where it appears in the game.</p>
+      <p>A component stores both positions as flat fields: <code>map_col</code> / <code>map_row</code> for its tilemap location, and <code>draw_x</code> / <code>draw_y</code> for where it is rendered on screen. These match the argument order of PICO-8's <code>map()</code> call directly.</p>
+
+      <div class="coord-diagram">
+
+        <!-- Map editor space -->
+        <div class="coord-space">
+          <div class="sub-label">Map Editor Space (tiles)</div>
+          <div class="coord-box">
+            <div class="coord-box-inner">
+              <div class="coord-origin">(0, 0)</div>
+              <!-- component block -->
+              <div class="coord-component" style="left:30%; top:35%; width:52%; height:42%;">
+                H1
+                <div style="font-size:9px; color:var(--muted); margin-top:2px;">component tiles</div>
+              </div>
+              <!-- dot at top-left of component -->
+              <div class="coord-dot" style="background: var(--yellow); left:30%; top:35%;"></div>
+              <div class="coord-label" style="color:var(--yellow); left:32%; top:37%;">
+                map_col, map_row
+              </div>
+            </div>
+          </div>
+          <p style="font-size:12px; color:var(--muted); margin-top:8px; font-family:var(--mono);">The tilemap canvas. 128×64 tiles total. Components can be placed wherever is convenient — pack them together or spread them out.</p>
+        </div>
+
+        <!-- Arrow -->
+        <div class="coord-arrow-col">
+          <div class="arrow-symbol">→</div>
+          <div class="arrow-note">rendered at runtime</div>
+        </div>
+
+        <!-- Screen space -->
+        <div class="coord-space">
+          <div class="sub-label">Screen Space (pixels)</div>
+          <div class="coord-box">
+            <div class="coord-box-inner">
+              <div class="coord-origin">(0, 0)</div>
+              <div class="coord-component" style="left:0; top:28%; width:100%; height:44%;">
+                H1
+              </div>
+              <div class="coord-dot" style="background: #88b8d8; left:0%; top:28%;"></div>
+              <div class="coord-label" style="color:#88b8d8; left:2%; top:30%;">
+                draw_x, draw_y
+              </div>
+            </div>
+          </div>
+          <p style="font-size:12px; color:var(--muted); margin-top:8px; font-family:var(--mono);">Always 128×128 pixels. draw_x is 0 for full-width components. draw_y is 0 for full-height, or a positive offset to center shorter components.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Component Data -->
+  <section>
+    <h2>Component Data</h2>
+    <div class="panel">
+      <p>Each component is a table. These are the fields every component needs:</p>
+      <div class="fields-grid">
+        <div class="field-name">map_col</div>
+        <div class="field-desc">Tile column in the map editor where this component's tiles begin — the horizontal source position passed to <code>map()</code>. <span class="field-type">— tile index</span></div>
+
+        <div class="field-name">map_row</div>
+        <div class="field-desc">Tile row in the map editor where this component's tiles begin — the vertical source position passed to <code>map()</code>. <span class="field-type">— tile index</span></div>
+
+        <div class="field-name">draw_x</div>
+        <div class="field-desc">Pixel column on screen where the component is drawn. For a component that fills the full screen width this is always <code>0</code>. <span class="field-type">— pixels</span></div>
+
+        <div class="field-name">draw_y</div>
+        <div class="field-desc">Pixel row on screen where the component is drawn. For a component that fills the full screen height this is <code>0</code>. See the centering note below for shorter components. <span class="field-type">— pixels</span></div>
+
+        <div class="field-name">pixel_w</div>
+        <div class="field-desc">Component width in pixels. Minimum 128. <span class="field-type">— pixels</span></div>
+
+        <div class="field-name">pixel_h</div>
+        <div class="field-desc">Component height in pixels. Can be less than 128 for thin hallways. <span class="field-type">— pixels</span></div>
+
+        <div class="field-name">exits</div>
+        <div class="field-desc">Table with up to four keys — <code>left</code>, <code>right</code>, <code>up</code>, <code>down</code> — each holding a reference to the adjacent component, or <code>nil</code> for a sealed wall. <span class="field-type">— table</span></div>
+      </div>
+
+      <div class="callout warn" style="margin-top: 20px;">
+        <strong>Centering a short component vertically:</strong> set <code>draw_y = flr((128 - pixel_h) / 2)</code> when you define it. This is a one-time setup calculation, not something computed at runtime. <code>draw_x</code> follows the same logic horizontally, but full-width components always have <code>draw_x = 0</code>.
+      </div>
+    </div>
+  </section>
+
+  <!-- Coordinate Conversion -->
+  <section>
+    <h2>Coordinate Conversion — Screen → Tile</h2>
+    <div class="panel">
+      <p>When checking whether a tile is solid, the player's screen position must be converted to the corresponding tile in the map editor. The player lives in screen space; the collision data lives in the tilemap. These two steps bridge them.</p>
+      <p>Step 1 removes the draw offset to get the player's position relative to the component's top-left corner. Step 2 divides by tile size and offsets by the component's tilemap position to get the actual tile.</p>
+
+      <div class="conv-chain">
+        <div class="conv-row">
+          <div class="conv-formula">local_x = screen_x - comp.draw_x</div>
+          <div class="conv-note">player x relative to component top-left</div>
+        </div>
+        <div class="conv-row">
+          <div class="conv-formula">local_y = screen_y - comp.draw_y</div>
+          <div class="conv-note">player y relative to component top-left</div>
+        </div>
+        <div class="conv-row">
+          <div class="conv-formula">tile_x = comp.map_col + flr(local_x / 8)</div>
+          <div class="conv-note">convert pixels → tiles, offset into tilemap</div>
+        </div>
+        <div class="conv-row">
+          <div class="conv-formula">tile_y = comp.map_row + flr(local_y / 8)</div>
+          <div class="conv-note">same, vertical</div>
+        </div>
+        <div class="conv-row">
+          <div class="conv-formula">fget(mget(tile_x, tile_y), solid_flag)</div>
+          <div class="conv-note">query the real tile in the map editor</div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>is_solid() must be updated.</strong> It currently reads raw tilemap coordinates. Under screen-space rendering those coordinates are meaningless — it must go through this conversion using the active component's fields. Pass the component explicitly or read from <code>Game.current_component</code>.
+      </div>
+    </div>
+  </section>
+
+  <!-- Catalog -->
+  <section>
+    <h2>Component Catalog — All 15 Types</h2>
+    <div class="panel">
+      <p>All hallway piece types needed to build any maze layout. Each 3×3 schematic shows open passage cells <span style="color:var(--green); font-family:var(--mono);">(↑←→↓)</span> and wall cells. Corner cells are always walls.</p>
+      <div class="flag-legend">
+        <div class="flag-swatch"></div>
+        <span>Types with a yellow border were not in the original sketch — confirm whether these are needed.</span>
+      </div>
+
+      <div class="catalog-grid">
+
+        <!-- 1. Straight H -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+            <div class="cc open">←</div><div class="cc pass"></div><div class="cc open">→</div>
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Straight H</div>
+          <div class="type-exits">open: L R</div>
+        </div>
+
+        <!-- 2. Straight V (flagged) -->
+        <div class="catalog-item flagged">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc open">↑</div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc pass"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc open">↓</div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Straight V</div>
+          <div class="type-exits">open: U D</div>
+        </div>
+
+        <!-- 3. Dead End L -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+            <div class="cc open">←</div><div class="cc pass"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Dead End L</div>
+          <div class="type-exits">open: L</div>
+        </div>
+
+        <!-- 4. Dead End R -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc pass"></div><div class="cc open">→</div>
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Dead End R</div>
+          <div class="type-exits">open: R</div>
+        </div>
+
+        <!-- 5. Dead End U (flagged) -->
+        <div class="catalog-item flagged">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc open">↑</div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc pass"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Dead End U</div>
+          <div class="type-exits">open: U</div>
+        </div>
+
+        <!-- 6. Dead End D (flagged) -->
+        <div class="catalog-item flagged">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc pass"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc open">↓</div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Dead End D</div>
+          <div class="type-exits">open: D</div>
+        </div>
+
+        <!-- 7. Corner NW -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc open">↑</div><div class="cc wall"></div>
+            <div class="cc open">←</div><div class="cc pass"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Corner NW</div>
+          <div class="type-exits">open: L U</div>
+        </div>
+
+        <!-- 8. Corner NE -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc open">↑</div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc pass"></div><div class="cc open">→</div>
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Corner NE</div>
+          <div class="type-exits">open: R U</div>
+        </div>
+
+        <!-- 9. Corner SW -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+            <div class="cc open">←</div><div class="cc pass"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc open">↓</div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Corner SW</div>
+          <div class="type-exits">open: L D</div>
+        </div>
+
+        <!-- 10. Corner SE -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc pass"></div><div class="cc open">→</div>
+            <div class="cc wall"></div><div class="cc open">↓</div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Corner SE</div>
+          <div class="type-exits">open: R D</div>
+        </div>
+
+        <!-- 11. T no top -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+            <div class="cc open">←</div><div class="cc pass"></div><div class="cc open">→</div>
+            <div class="cc wall"></div><div class="cc open">↓</div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">T — no top</div>
+          <div class="type-exits">open: L R D</div>
+        </div>
+
+        <!-- 12. T no bottom -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc open">↑</div><div class="cc wall"></div>
+            <div class="cc open">←</div><div class="cc pass"></div><div class="cc open">→</div>
+            <div class="cc wall"></div><div class="cc wall"></div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">T — no bottom</div>
+          <div class="type-exits">open: L R U</div>
+        </div>
+
+        <!-- 13. T no left -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc open">↑</div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc pass"></div><div class="cc open">→</div>
+            <div class="cc wall"></div><div class="cc open">↓</div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">T — no left</div>
+          <div class="type-exits">open: R U D</div>
+        </div>
+
+        <!-- 14. T no right -->
+        <div class="catalog-item">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc open">↑</div><div class="cc wall"></div>
+            <div class="cc open">←</div><div class="cc pass"></div><div class="cc wall"></div>
+            <div class="cc wall"></div><div class="cc open">↓</div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">T — no right</div>
+          <div class="type-exits">open: L U D</div>
+        </div>
+
+        <!-- 15. Cross (flagged) -->
+        <div class="catalog-item flagged">
+          <div class="comp-grid">
+            <div class="cc wall"></div><div class="cc open">↑</div><div class="cc wall"></div>
+            <div class="cc open">←</div><div class="cc pass"></div><div class="cc open">→</div>
+            <div class="cc wall"></div><div class="cc open">↓</div><div class="cc wall"></div>
+          </div>
+          <div class="type-name">Cross</div>
+          <div class="type-exits">open: L R U D</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Transition Logic -->
+  <section>
+    <h2>Transition Logic</h2>
+    <div class="panel">
+      <p>A transition fires the moment the player crosses a component's boundary. Because all components share consistent sizing, the perpendicular axis carries over directly — no remapping needed.</p>
+
+      <div class="steps" style="margin-top: 16px;">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Detect boundary crossing</strong>
+            <p>Check whether the player's screen position has passed the component edge in a given direction. Only check directions where <code>exits[dir]</code> is not nil — sealed sides are physically blocked by wall tiles and can never be reached.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Switch active component</strong>
+            <p>Set <code>Game.current_component</code> to the exit's target. The new component's fields immediately apply to all subsequent rendering and tile lookups.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Reset the crossing axis</strong>
+            <p>Place the player just inside the entry edge of the new component — one tile's worth of margin from the wall. The perpendicular axis carries over unchanged: a horizontal crossing preserves Y, a vertical crossing preserves X.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout ok" style="margin-top: 4px;">
+        <strong>No exit = no code needed.</strong> If <code>exits[dir]</code> is nil the wall tiles handle it — the player is physically stopped. The boundary check is skipped entirely for sealed sides.
+      </div>
+    </div>
+  </section>
+
+  <!-- Rendering -->
+  <section>
+    <h2>Rendering Pipeline</h2>
+    <div class="panel">
+      <p>The camera is not used. All draw positions are raw screen coordinates. The map is drawn by specifying which tiles to copy from the map editor and where on screen to place them — this maps directly to PICO-8's <code>map(map_col, map_row, draw_x, draw_y, tile_w, tile_h)</code>.</p>
+
+      <div class="steps" style="margin-top: 16px;">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Reset camera</strong>
+            <p>Call <code>camera()</code> with no arguments at the start of every draw. This clears any offset so all subsequent calls are in raw screen coordinates.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Draw component tiles</strong>
+            <p>Call <code>map(comp.map_col, comp.map_row, comp.draw_x, comp.draw_y, tile_w, tile_h)</code>. Only this component's tiles are drawn — nothing else on the tilemap is touched.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Draw entities</strong>
+            <p>The player and all entities are positioned in screen space. Draw sprites directly at their <code>x, y</code> screen coordinates — no conversion or offset needed for rendering.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>Scrolling (components wider or taller than 128px):</strong> calculate a scroll offset from the player's position, clamped between 0 and <code>pixel_w - 128</code>. Add the scroll to <code>map_col</code> (shift the tile source) and subtract it from all entity screen positions. For components exactly 128px wide the scroll is always 0 and no adjustment is needed.
+      </div>
+    </div>
+  </section>
+
+  <!-- Integration -->
+  <section>
+    <h2>Integration With Existing System</h2>
+    <div class="panel">
+      <p>The component system is additive. Existing files and logic are unchanged except for <code>is_solid()</code>.</p>
+      <div class="two-col" style="margin-top: 12px;">
+        <div>
+          <div class="sub-label">Portal system — unchanged</div>
+          <ul>
+            <li>Instant travel between named rooms</li>
+            <li>No physical traversal or mapping needed</li>
+            <li>Triggered by proximity</li>
+            <li>Stays in rooms.lua</li>
+          </ul>
+        </div>
+        <div>
+          <div class="sub-label">Component system — new</div>
+          <ul>
+            <li>Physical traversal through corridors</li>
+            <li>Edge-triggered hard-cut transitions</li>
+            <li>Camera locked per component</li>
+            <li>Defined in new components.lua</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout err" style="margin-top: 16px;">
+        <strong>is_solid() must be updated.</strong> It is the only existing function that breaks under screen-space rendering. It currently uses raw screen coordinates as tilemap coordinates — that assumption is no longer valid. It needs the two-step conversion above (strip draw offset, divide by 8 and add map position), reading from <code>Game.current_component</code>.
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
