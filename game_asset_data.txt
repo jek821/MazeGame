@@ -1,35 +1,21 @@
-ROOM COORDINATES
-================
+MAZE GAME ASSET DATA
+====================
 
-Main Room
-  Top Left:     (x: 0,   y: 0)
-  Bottom Right: (x: 17,  y: 13)
-
-Test Room
-  Top Left:     (x: 103, y: 12)
-  Bottom Right: (x: 126, y: 30)
-
-
-
-
-PORTAL COORDINATES
-==================
-Main Room --> Test Room (x: 2, y: 5)
 
 SPRITES
 =======
 
 Player
-  DOWN  = 7
-  RIGHT = 8
-  UP    = 23
-  LEFT  = 24
+  down  = 7
+  up    = 23
+  right = 8
+  left  = 24
 
 Zombie
-  D_LEFT  = 17
-  D_RIGHT = 18
-  U_RIGHT = 19
-  U_LEFT  = 20
+  down_left  = 17
+  down_right = 18
+  up_right   = 19
+  up_left    = 20
 
 Items
   gun          = 4
@@ -37,14 +23,55 @@ Items
   ammo         = 3
   coin         = 34
   broken_clock = 16
+  chest        = 50
 
 Decor
   ritual_symbols = 21, 22, 37, 38
   pages          = 32, 33, 48, 49
 
+Portal
+  states = 77, 78, 93  (animates, cycles 1->2->3->1 every 15 ticks)
+
+Windows
+  normal_empty = 51
+  broken_empty = 52
+  normal_zombie = 35
+  broken_zombie = 36
+
 
 SOUNDS
 ======
+  coin_pickup   = 0  (music track)
+  shotgun_blast = 1  (music track)
 
-  CoinPickup   : music(0)
-  ShotgunBlast : music(1)
+
+SPRITE FLAGS
+============
+  solid = flag 1
+
+
+ROOMS  (all coordinates in tile units)
+======================================
+
+Main Room
+  top_left:     (1, 1)
+  bottom_right: (16, 12)
+  note: offset 1 tile inward on all sides to exclude walls
+
+Test Room
+  top_left:     (103, 12)
+  bottom_right: (126, 30)
+
+
+PORTALS  (all coordinates in tile units)
+=========================================
+
+Main Room -> Test Room
+  trigger top:    (2, 4)
+  trigger bottom: (2, 5)
+  player spawns:  top (103, 20), bottom (103, 21)
+
+Test Room -> Main Room
+  trigger top:    (103, 20)
+  trigger bottom: (103, 21)
+  player spawns:  top (2, 4), bottom (2, 5)

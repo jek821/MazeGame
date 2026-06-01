@@ -1,21 +1,35 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
+
+
+--==========
+-- ID's 
+--==========
+Assets = {
+	coin_sprite = 34,
+	player_down_sprite = 7,
+	player_up_sprite = 23,
+	player_right_sprite = 8,
+	player_left_sprite = 24, 
+}
+
+Sounds = {
+	coin_pickup_sound = music(0),
+	shotgun_blast_sound = music(1)
+}
+
+PortalStates = {77, 78, 93}
+
+
 --==========
 -- Debug GusCHung
 --==========
-touching_portal = false 
-
-
-
+touching_portal = false
 
 --==========
 -- AI Movement
 --==========
-
-
-
-
 
 --==========
 -- Sprite Flags
@@ -24,6 +38,14 @@ flags = {
 	solid = 1
 }
 
+--==========
+-- Portals
+--==========
+Portals = {
+	to_test_maze = { destination = Test_Room.portal_entry, render_positions = {bottom = {x = 2, y = 5}, top = {x = 2, y = 4}}}
+}
+
+
 
 --==========
 -- ROOM DEFINITIONS
@@ -31,11 +53,12 @@ flags = {
 
 Test_Room = {
 	top_leftx = 103 * 8,
-	top_lefty = 12 * 8, 
+	top_lefty = 12 * 8,
 	bottom_rightx = 126 * 8,
-	bottom_righty = 30 * 8
+	bottom_righty = 30 * 8, 
+	portal_entry_top = {x = 103, y = 20},
+	portal_entry_bottom = {x = 103, y = 21}
 }
-
 
 Main_Room = {
 	-- * 8 because each "pixel" is a sprite which is actually 8 pixels...
@@ -48,14 +71,14 @@ Main_Room = {
 		-- { sprite_id, x_pos, y_pos}
 	},
 	portals = {
-		{x = 2*8, y = 5*8, destination = Test_Room}
+		{portal = Portals.to_test_maze, bottom = {x = 2, y = 5}, top = {x = 2, y = 4}, current_state = 0}
 	}
+
 }
 
 --==========
 -- STATES
 --==========
-
 
 --GUN STATE
 Shotgun = {
@@ -92,9 +115,13 @@ Game = {
 	}
 }
 
+
+
 --==========
 -- HELPERS
 --==========
+
+
 
 --GUN HELPERS
 function can_shoot_shotgun()
@@ -123,7 +150,15 @@ function fire_shotgun(px, py, aim_angle)
 	end
 end
 
+
+
+
+
 -- ROOM HELPERS
+
+function renderRoomPortals()
+	for portal in all(game.current_room.portals) do
+		
 
 function checkCurrentRoomPortals()
 	for portal in all(Game.current_room.portals) do
@@ -132,7 +167,6 @@ function checkCurrentRoomPortals()
 			return
 		end
 		touching_portal = false
-
 	end
 end
 
@@ -182,11 +216,9 @@ function is_solid(x, y)
 	return fget(tile, flags.solid)
 end
 
-
 --==========
 -- Enemy Helpers
 --==========
-
 
 --===========
 -- USER INPUT
@@ -277,7 +309,6 @@ function _update60()
 	Game.current_time = max(0, Game.start_time - flr(seconds))
 	handle_keys()
 	detectItemOnPlayer()
-	checkCurrentRoomPortals()
 end
 
 function renderTopHud()
@@ -301,12 +332,9 @@ function _draw()
 	renderTopHud()
 	line(Game.mx - 4, Game.my, Game.mx + 4, Game.my, 7)
 	line(Game.mx, Game.my - 4, Game.mx, Game.my + 4, 7)
-	
-
 
 	-- DEBUG GUS CHUNG
 	if touching_portal then
 		print("PORTAL TOUCHED!")
 	end
-
 end
