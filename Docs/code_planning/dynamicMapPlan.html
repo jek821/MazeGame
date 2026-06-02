@@ -501,7 +501,7 @@
       </div>
 
       <div class="callout warn">
-        <strong>is_solid() must be updated.</strong> It currently reads raw tilemap coordinates. Under screen-space rendering those coordinates are meaningless — it must go through this conversion using the active component's fields. Pass the component explicitly or read from <code>Game.current_component</code>.
+        <strong>is_solid() must be updated.</strong> It currently reads raw tilemap coordinates. Under screen-space rendering those coordinates are meaningless — it must go through this conversion using the active component's fields. Pass the component explicitly or read from <code>Game.current_map_component</code>.
       </div>
     </div>
   </section>
@@ -705,7 +705,7 @@
           <div class="step-num">2</div>
           <div class="step-body">
             <strong>Switch active component</strong>
-            <p>Set <code>Game.current_component</code> to the exit's target. The new component's fields immediately apply to all subsequent rendering and tile lookups.</p>
+            <p>Set <code>Game.current_map_component</code> to the exit's target. The new component's fields immediately apply to all subsequent rendering and tile lookups.</p>
           </div>
         </div>
         <div class="step">
@@ -733,19 +733,12 @@
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
-            <strong>Reset camera</strong>
-            <p>Call <code>camera()</code> with no arguments at the start of every draw. This clears any offset so all subsequent calls are in raw screen coordinates.</p>
+            <strong>Draw component tiles</strong>
+            <p>Call <code>map(comp.map_col, comp.map_row, comp.draw_x, comp.draw_y, flr(comp.pixel_w/8), flr(comp.pixel_h/8))</code>. Only this component's tiles are drawn — nothing else on the tilemap is touched.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
-          <div class="step-body">
-            <strong>Draw component tiles</strong>
-            <p>Call <code>map(comp.map_col, comp.map_row, comp.draw_x, comp.draw_y, tile_w, tile_h)</code>. Only this component's tiles are drawn — nothing else on the tilemap is touched.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
           <div class="step-body">
             <strong>Draw entities</strong>
             <p>The player and all entities are positioned in screen space. Draw sprites directly at their <code>x, y</code> screen coordinates — no conversion or offset needed for rendering.</p>
@@ -785,7 +778,7 @@
         </div>
       </div>
       <div class="callout err" style="margin-top: 16px;">
-        <strong>is_solid() must be updated.</strong> It is the only existing function that breaks under screen-space rendering. It currently uses raw screen coordinates as tilemap coordinates — that assumption is no longer valid. It needs the two-step conversion above (strip draw offset, divide by 8 and add map position), reading from <code>Game.current_component</code>.
+        <strong>is_solid() must be updated.</strong> It is the only existing function that breaks under screen-space rendering. It currently uses raw screen coordinates as tilemap coordinates — that assumption is no longer valid. It needs the two-step conversion above (strip draw offset, divide by 8 and add map position), reading from <code>Game.current_map_component</code>.
       </div>
     </div>
   </section>

@@ -17,11 +17,11 @@ function is_solid(x, y)
 end
 
 function detect_item_on_player()
-	for item in all(Game.current_room.items) do
+	for item in all(Game.current_map_component.items) do
 		if abs(item.x - Player.x) < 8 and abs(item.y - Player.y) < 8 then
 			if item.id == Assets.coin_sprite then
 				music(Sounds.coin_pickup)
-				del(Game.current_room.items, item)
+				del(Game.current_map_component.items, item)
 				Player.coins += 1
 			end
 		end
@@ -74,8 +74,5 @@ function handle_keys()
 	if Game.mb == 1 and can_shoot_shotgun() then
 		fire_shotgun(Player.x + 4, Player.y + 4, Player.aim)
 		Shotgun.shoot_cooldown = 50
-	end
-	if Game.mb == 1 and Shotgun.current_rounds == 0 then
-		rack_round()
 	end
 end
