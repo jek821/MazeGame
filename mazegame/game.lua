@@ -1,5 +1,5 @@
 Game = {
-	start_time   = 100,
+	start_time = 100,
 	current_time = 0,
 	current_room = Main_Room,
 	cam_x = 0,
@@ -11,9 +11,11 @@ Game = {
 }
 
 function render_top_hud()
-	spr(Assets.coin_sprite, 45, -2)
-	print(Player.coins, 40, 0, 12)
+	spr(Assets.coin_sprite, 20, -2)
+	print(Player.coins, 28, 0, 11)
 	print(Game.current_time, 0, 0, 7)
+	spr(Assets.ammo_sprite, 42, -2)
+	print(Shotgun.current_rounds, 50, 0, 11)
 end
 
 function _init()
@@ -45,6 +47,7 @@ function _draw()
 	camera(Player.x - 64, Player.y - 64)
 	map()
 	render_pellets()
+	reload_animation()
 	render_room_items(Game.current_room)
 	render_room_portals(Game.current_room)
 	spr(Player.sprite_num, Player.x, Player.y)
