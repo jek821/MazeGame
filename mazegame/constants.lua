@@ -32,8 +32,6 @@ Sounds = {
 	shotgun_blast = 1
 }
 
--- portal animation frames, cycles 1->2->3->1
-PortalStates = { 77, 78, 93 }
 
 flags = {
 	solid = 1

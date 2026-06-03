@@ -1,4 +1,4 @@
-touching_portal = false
+touching_exit = false
 debug_i = -1
 
 Player = {

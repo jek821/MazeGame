@@ -32,8 +32,7 @@ function _update60()
 	handle_keys()
 	update_gun()
 	detect_item_on_player()
-	update_component_portals(Game.current_map_component)
-	check_current_component_portals()
+	check_current_component_exits()
 end
 
 function _draw()
@@ -43,13 +42,12 @@ function _draw()
 	render_pellets()
 	reload_animation()
 	render_component_items(comp)
-	render_component_portals(comp)
 	spr(Player.sprite_num, Player.x, Player.y)
 	render_top_hud()
 	line(Game.mx - 4, Game.my, Game.mx + 4, Game.my, 7)
 	line(Game.mx, Game.my - 4, Game.mx, Game.my + 4, 7)
 
-	if touching_portal then
-		print("PORTAL TOUCHED!")
+	if touching_exit then
+		print("EXIT TOUCHED!")
 	end
 end
