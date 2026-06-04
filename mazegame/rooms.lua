@@ -3,12 +3,10 @@ function tile_to_px(t)
 end
 
 Main_Component = {
-	map_col = 1,
-	map_row = 1,
-	draw_x  = 0,
-	draw_y  = 0,
-	pixel_w = 120,
-	pixel_h = 88,
+	map_col = 0,
+	map_row = 0,
+	tile_w = 18,
+	tile_h = 14,
 	exits   = {},
 	items   = {}
 }
@@ -30,8 +28,8 @@ add(Test_Component.exits, { x = 103, y = 20, dest = Main_Component, dest_x = til
 function check_current_component_exits()
 	touching_exit = false
 	for e in all(Game.current_map_component.exits) do
-		local ex = tile_to_px(e.x)
-		local ey = tile_to_px(e.y)
+		local ex = tile_to_px(e.x) + Display.map_component_x
+		local ey = tile_to_px(e.y) + Display.map_component_y
 		if abs(ex - Player.x) < 8 and abs(ey - Player.y) < 8 then
 			touching_exit = true
 			Game.current_map_component = e.dest

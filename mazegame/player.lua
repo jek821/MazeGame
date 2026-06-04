@@ -12,8 +12,9 @@ Player = {
 }
 
 function is_solid(x, y)
-	local tile = mget(flr(x / 8), flr(y / 8))
-	return fget(tile, flags.solid)
+	local map_x = flr(x / 8) + Game.current_map_component.map_col
+	local map_y = flr(y / 8) + Game.current_map_component.map_row
+	return fget(mget(map_x, map_y), flags.solid)
 end
 
 function detect_item_on_player()
