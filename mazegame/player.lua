@@ -3,8 +3,8 @@ debug_i = -1
 
 Player = {
 	sprite_num = Assets.player_down_sprite,
-	x = 64,
-	y = 64,
+	x = 68,
+	y = 52,
 	aim = 0,
 	ammo = 10,
 	health = 100,

@@ -12,12 +12,10 @@ Main_Component = {
 }
 
 Test_Component = {
-	map_col = 103,
-	map_row = 12,
-	draw_x  = 0,
-	draw_y  = 0,
-	pixel_w = 184,
-	pixel_h = 144,
+	map_col = 0,
+	map_row = 15,
+	tile_w = 15,
+	tile_h = 6,
 	exits   = {},
 	items   = {}
 }
