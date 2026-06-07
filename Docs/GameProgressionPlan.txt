@@ -1,0 +1,47 @@
+1. Start in main room 
+	- Talk to guard in front of door, get quest
+	- Proceed to Market (top right door)
+2. Enter Market area
+	- 2 Vendors, one gives shotgun (maybe creepyPasta animation), other vendor is selling a page (need coins from around game to unlock later). 
+	- Go Back to main Room
+3. Enter main room again, ritual path is now open (door has appeared in top left) 
+	- Enter short hallway to ritual room with zombies ontop of dead bodies and boarded up windows (zombies don't come out of windows)
+	- enter ritual room at end of hallway
+4. Enter Ritual Room 
+	- Complete ritual room puzzle
+	- Portal appears to take player back to main room 
+5. Bottom left door to king's throne room is now unlocked
+	- Enter set dressing hallway with broken clocks on walls... maybe some dead bodies/skeletons 
+	- End of hallway enter throne room 
+	
+6. Enter pre throne room, painting on wall shows hint for upcoming throne room puzzle
+	- take next door to throne room
+
+7. Enter throne room (very fancy large room with lots of clocks and shit)
+	- Complete throne room puzzle using aforementioned hint to get piece of guards riddle
+	- *No portal after puzzle* walk back to main room 
+
+8. Enter main room after throne room puzzle completion and walk back 
+	- Bottom right door is now open *maze path to gauntlet room*
+	- Enter maze path to gauntlet room
+
+9. Enter maze path to gauntlet room
+	- three distinct maze areas of increasing difficulty *number of zombies coming through windows and prespawned in rooms 
+	- At end of third maze area get to gauntlet room 
+	- weapons are taken away and dash is given
+	- funny clown man starts 30 second timer and tells them to survive
+	- projectiles fire from walls at player they must dodge until the time limit is up
+	- IF player dies they must restart
+	- if player complete challenge they are given weapons back and told that they can keep the dash
+	- Portal opens back to main room 
+
+10. Enter main room after completing gauntlet  
+	- If player has enough gold they can get last piece of riddle
+	- if they do not they must continue to explore maze to gauntlet until they have enough
+
+11. Player gets last piece of riddle from market
+	- player has infinite attempts to solve riddle but we loop through insults with each failure (need to come up with atleast 30 insults)
+	- once player completes riddle the guard disappears into magical dust and the big doors open
+
+12. Player enters boss room 
+	- Player fights boss!
