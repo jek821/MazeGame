@@ -40,3 +40,14 @@ flags = {
 function tile_to_px(t)
 	return t * 8
 end
+
+-- Screen dimensions and derived viewport size:
+Display = {
+	screen_w = 128,  -- pico-8 screen width
+	screen_h = 128,  -- pico-8 screen height
+	hud_h    = 10,   -- pixels reserved for the top hud bar
+	view_w   = 128,  -- playfield width (full screen, no horizontal hud)
+	view_h   = 118,  -- playfield height (screen_h - hud_h)
+	cam_x    = 0,    -- current camera offset x
+	cam_y    = 0     -- current camera offset y
+}

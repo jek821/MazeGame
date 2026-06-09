@@ -1,6 +1,3 @@
-touching_exit = false
-debug_i = -1
-
 Player = {
 	sprite_num = Assets.player_down_sprite,
 	x = 68,
@@ -84,4 +81,23 @@ end
 function god_mode()
 	Shotgun.current_rounds = 1000
 	Player.health = 100000
+end
+
+function update_mouse()
+	-- Get raw absolute position and compute how far it moved since last frame:
+	local rx = stat(32)
+	local ry = stat(33)
+	local dx = rx - Game._raw_mx
+	local dy = ry - Game._raw_my
+	Game._raw_mx = rx
+	Game._raw_my = ry
+	-- Accumulate scaled delta into virtual cursor, clamped to screen bounds:
+	Game.mx = mid(0, Game.mx + dx * Game.mouse_sens, Display.screen_w)
+	Game.my = mid(0, Game.my + dy * Game.mouse_sens, Display.screen_h)
+	Game.mb = stat(34)
+end
+
+function render_crosshair()
+	line(Game.mx - 4, Game.my, Game.mx + 4, Game.my, 7)
+	line(Game.mx, Game.my - 4, Game.mx, Game.my + 4, 7)
 end

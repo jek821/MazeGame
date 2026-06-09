@@ -6,6 +6,7 @@ __lua__
 #include mazegame/player.lua
 #include mazegame/gun.lua
 #include mazegame/enemies.lua
+#include mazegame/hud.lua
 #include mazegame/game.lua
 
 __gfx__
