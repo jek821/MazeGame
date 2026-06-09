@@ -36,3 +36,7 @@ Sounds = {
 flags = {
 	solid = 1
 }
+
+function tile_to_px(t)
+	return t * 8
+end

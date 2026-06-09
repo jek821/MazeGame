@@ -29,13 +29,13 @@ function detect_item_on_player()
 	end
 end
 
-function god_mode()
-	Shotgun.current_rounds = 1000
-	Player.health = 100000
-end
+function update_player()
+	-- Convert mouse screen position to world position using camera offset:
+	local aim_x = Game.mx + Display.cam_x
+	local aim_y = Game.my + Display.cam_y - Display.hud_h
+	Player.aim = atan2(aim_x - Player.x, aim_y - Player.y)
 
-function handle_keys()
-	-- key codes differ per direction because collision offsets differ per sprite
+	-- Key codes differ per direction because collision offsets differ per sprite:
 	for i = 0, 255 do
 		if stat(28, i) then
 			if i == 26 then
@@ -67,13 +67,21 @@ function handle_keys()
 				end
 			end
 		end
-		-- else
-		-- 	debug_i = i
-		-- end
 	end
 
 	if Game.mb == 1 and can_shoot_shotgun() then
 		fire_shotgun(Player.x + 4, Player.y + 4, Player.aim)
 		Shotgun.shoot_cooldown = 50
 	end
+
+	detect_item_on_player()
+end
+
+function render_player()
+	spr(Player.sprite_num, Player.x, Player.y)
+end
+
+function god_mode()
+	Shotgun.current_rounds = 1000
+	Player.health = 100000
 end

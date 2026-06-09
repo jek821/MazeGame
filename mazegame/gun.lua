@@ -32,34 +32,6 @@ function fire_shotgun(px, py, aim_angle)
 	end
 end
 
-function reload_animation()
-	if Shotgun.reloading then 
-		spr(53, Player.x + 4, Player.y)
-		for i = 1, Shotgun.current_rounds,1 do 
-			pset(Player.x + 8, Player.y + (7 - i), 8)
-		end
-	end
-end 
-
-
-function shotgun_reload()
-	if Shotgun.current_rounds == Shotgun.max_rounds then
-		Shotgun.reloading = false
-		return
-	end
-	Shotgun.reload_time += 1
-	if Shotgun.reload_time == Shotgun.reload_duration then
-		Shotgun.current_rounds += 1
-		Shotgun.reload_time = 0
-	end
-
-end
-
-function shotgun_start_reload()
-	Shotgun.reloading = true
-end
-
-
 function update_gun()
 	if Shotgun.shoot_cooldown > 0 then
 		Shotgun.shoot_cooldown -= 1
@@ -72,16 +44,30 @@ function update_gun()
 			del(Shotgun.pellets, p)
 		end
 	end
-	if Shotgun.current_rounds == 0 and Shotgun.reloading == false then
-		shotgun_start_reload()
+	if Shotgun.current_rounds == 0 and not Shotgun.reloading then
+		Shotgun.reloading = true
 	end
 	if Shotgun.reloading then
-		shotgun_reload()
+		if Shotgun.current_rounds == Shotgun.max_rounds then
+			Shotgun.reloading = false
+		else
+			Shotgun.reload_time += 1
+			if Shotgun.reload_time == Shotgun.reload_duration then
+				Shotgun.current_rounds += 1
+				Shotgun.reload_time = 0
+			end
+		end
 	end
 end
 
-function render_pellets()
+function render_gun()
 	for p in all(Shotgun.pellets) do
 		pset(p.x, p.y, 8)
+	end
+	if Shotgun.reloading then
+		spr(53, Player.x + 4, Player.y)
+		for i = 1, Shotgun.current_rounds, 1 do
+			pset(Player.x + 8, Player.y + (7 - i), 8)
+		end
 	end
 end
