@@ -1,33 +1,33 @@
-cursor_followers = {}
-cursor_follower_speed = 2
+cursorFollowers = {}
+cursorFollowerSpeed = 2
 
-function add_cursor_follower(id, start_x_pos, start_y_pos)
-    cursor_followers.add({
-    sprite_id = id,
-    x_pos = 0,
-    y_pos = 0,
+function addCursorFollower(id, startXPos, startYPos)
+    cursorFollowers.add({
+    spriteId = id,
+    xPos = 0,
+    yPos = 0,
 })
 end
 
 
 
-function update_cursor_followers()
-    for cursor_follower in all(cursor_followers) do
-        if cursor_follower.x_pos != Game.mx and cursor_follower.y_pos != Game.my then
+function updateCursorFollowers()
+    for cursorFollower in all(cursorFollowers) do
+        if cursorFollower.xPos != GameState.mx and cursorFollower.yPos != GameState.my then
             -- Get Deltas:
-            local dx = cursor_follower.x_pos - Game.mx
-            local dy = cursor_follower.y_pos - Game.my
-            -- Use pythagorean theorem to get distance 
+            local dx = cursorFollower.xPos - GameState.mx
+            local dy = cursorFollower.yPos - GameState.my
+            -- Use pythagorean theorem to get distance
             local distance = math.sqrt(dx*dx + dy*dy)
             -- adjust cursor_follower position using delta/distance * speed
-            cursor_follower.x_pos += dx/distance * cursor_follower_speed
-            cursor_follower.y_pos += dy/distance * cursor_follower_speed
+            cursorFollower.xPos += dx/distance * cursorFollowerSpeed
+            cursorFollower.yPos += dy/distance * cursorFollowerSpeed
         end
     end
 end
 
-function render_cursor_followers()
-    for cursor_follower in all(cursor_followers) do
-        spr(cursor_follower.sprite_id, cursor_follower.x_pos, cursor_follower.y_pos)
+function renderCursorFollowers()
+    for cursorFollower in all(cursorFollowers) do
+        spr(cursorFollower.spriteId, cursorFollower.xPos, cursorFollower.yPos)
     end
 end

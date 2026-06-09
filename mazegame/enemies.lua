@@ -1,3 +1,3 @@
 -- zombie AI (stub)
 -- each zombie: {x, y, health, speed}
--- stored in Game.zombies
+-- stored in GameState.zombies

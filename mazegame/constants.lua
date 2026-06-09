@@ -1,53 +1,52 @@
 Assets = {
 	-- player
-	player_down_sprite = 7,
-	player_up_sprite = 23,
-	player_right_sprite = 8,
-	player_left_sprite = 24,
+	playerDownSprite = 7,
+	playerUpSprite = 23,
+	playerRightSprite = 8,
+	playerLeftSprite = 24,
 	-- zombie
-	zombie_d_left_sprite = 17,
-	zombie_d_right_sprite = 18,
-	zombie_u_right_sprite = 19,
-	zombie_u_left_sprite = 20,
+	zombieDLeftSprite = 17,
+	zombieDRightSprite = 18,
+	zombieURightSprite = 19,
+	zombieULeftSprite = 20,
 	-- items
-	gun_sprite = 4,
-	sword_sprite = 5,
-	ammo_sprite = 3,
-	coin_sprite = 34,
-	broken_clock_sprite = 16,
-	chest_sprite = 50,
+	gunSprite = 4,
+	swordSprite = 5,
+	ammoSprite = 3,
+	coinSprite = 34,
+	brokenClockSprite = 16,
+	chestSprite = 50,
 	-- decor
-	ritual_symbol_sprites = { 21, 22, 37, 38 },
-	page_sprites = { 32, 33, 48, 49 },
+	ritualSymbolSprites = { 21, 22, 37, 38 },
+	pageSprites = { 32, 33, 48, 49 },
 	-- windows
-	window_normal_empty = 51,
-	window_broken_empty = 52,
-	window_normal_zombie = 35,
-	window_broken_zombie = 36,
-	reload_bar = 53
+	windowNormalEmpty = 51,
+	windowBrokenEmpty = 52,
+	windowNormalZombie = 35,
+	windowBrokenZombie = 36,
+	reloadBar = 53
 }
 
 Sounds = {
-	coin_pickup = 0,
-	shotgun_blast = 1
+	coinPickup = 0,
+	shotgunBlast = 1
 }
 
-
-flags = {
+Flags = {
 	solid = 1
 }
 
-function tile_to_px(t)
+function tileToPx(t)
 	return t * 8
 end
 
 -- Screen dimensions and derived viewport size:
-Display = {
-	screen_w = 128,  -- pico-8 screen width
-	screen_h = 128,  -- pico-8 screen height
-	hud_h    = 10,   -- pixels reserved for the top hud bar
-	view_w   = 128,  -- playfield width (full screen, no horizontal hud)
-	view_h   = 118,  -- playfield height (screen_h - hud_h)
-	cam_x    = 0,    -- current camera offset x
-	cam_y    = 0     -- current camera offset y
+DisplayState = {
+	screenW = 128,  -- pico-8 screen width
+	screenH = 128,  -- pico-8 screen height
+	hudH    = 10,   -- pixels reserved for the top hud bar
+	viewW   = 128,  -- playfield width (full screen, no horizontal hud)
+	viewH   = 118,  -- playfield height (screenH - hudH)
+	camX    = 0,    -- current camera offset x
+	camY    = 0     -- current camera offset y
 }

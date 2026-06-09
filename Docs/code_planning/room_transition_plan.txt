@@ -1,0 +1,2 @@
+1. Disable player controls 
+2. for now just do a black flash twice on original area, then two flashes in new area then controls resume. 

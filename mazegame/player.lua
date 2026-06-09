@@ -1,5 +1,5 @@
-Player = {
-	sprite_num = Assets.player_down_sprite,
+PlayerState = {
+	spriteNum = Assets.playerDownSprite,
 	x = 68,
 	y = 52,
 	aim = 0,
@@ -8,96 +8,96 @@ Player = {
 	coins = 0
 }
 
-function is_solid(x, y)
-	local map_x = flr(x / 8) + Game.current_map_component.map_col
-	local map_y = flr(y / 8) + Game.current_map_component.map_row
-	return fget(mget(map_x, map_y), flags.solid)
+function isSolid(x, y)
+	local mapX = flr(x / 8) + GameState.currentRoom.mapCol
+	local mapY = flr(y / 8) + GameState.currentRoom.mapRow
+	return fget(mget(mapX, mapY), Flags.solid)
 end
 
-function detect_item_on_player()
-	for item in all(Game.current_map_component.items) do
-		if abs(item.x - Player.x) < 8 and abs(item.y - Player.y) < 8 then
-			if item.id == Assets.coin_sprite then
-				music(Sounds.coin_pickup)
-				del(Game.current_map_component.items, item)
-				Player.coins += 1
+function detectItemOnPlayer()
+	for item in all(GameState.currentRoom.items) do
+		if abs(item.x - PlayerState.x) < 8 and abs(item.y - PlayerState.y) < 8 then
+			if item.id == Assets.coinSprite then
+				music(Sounds.coinPickup)
+				del(GameState.currentRoom.items, item)
+				PlayerState.coins += 1
 			end
 		end
 	end
 end
 
-function update_player()
+function updatePlayer()
 	-- Convert mouse screen position to world position using camera offset:
-	local aim_x = Game.mx + Display.cam_x
-	local aim_y = Game.my + Display.cam_y - Display.hud_h
-	Player.aim = atan2(aim_x - Player.x, aim_y - Player.y)
+	local aimX = GameState.mx + DisplayState.camX
+	local aimY = GameState.my + DisplayState.camY - DisplayState.hudH
+	PlayerState.aim = atan2(aimX - PlayerState.x, aimY - PlayerState.y)
 
 	-- Key codes differ per direction because collision offsets differ per sprite:
 	for i = 0, 255 do
 		if stat(28, i) then
 			if i == 26 then
 				-- w
-				Player.sprite_num = Assets.player_up_sprite
-				if not is_solid(Player.x, Player.y - 1) and not is_solid(Player.x + 7, Player.y - 1) then
-					Player.y -= 1
+				PlayerState.spriteNum = Assets.playerUpSprite
+				if not isSolid(PlayerState.x, PlayerState.y - 1) and not isSolid(PlayerState.x + 7, PlayerState.y - 1) then
+					PlayerState.y -= 1
 				end
 			end
 			if i == 7 then
 				-- d
-				Player.sprite_num = Assets.player_right_sprite
-				if not is_solid(Player.x + 8, Player.y) and not is_solid(Player.x + 8, Player.y + 7) then
-					Player.x += 1
+				PlayerState.spriteNum = Assets.playerRightSprite
+				if not isSolid(PlayerState.x + 8, PlayerState.y) and not isSolid(PlayerState.x + 8, PlayerState.y + 7) then
+					PlayerState.x += 1
 				end
 			end
 			if i == 22 then
 				-- s
-				Player.sprite_num = Assets.player_down_sprite
-				if not is_solid(Player.x, Player.y + 8) and not is_solid(Player.x + 7, Player.y + 8) then
-					Player.y += 1
+				PlayerState.spriteNum = Assets.playerDownSprite
+				if not isSolid(PlayerState.x, PlayerState.y + 8) and not isSolid(PlayerState.x + 7, PlayerState.y + 8) then
+					PlayerState.y += 1
 				end
 			end
 			if i == 4 then
 				-- a
-				Player.sprite_num = Assets.player_left_sprite
-				if not is_solid(Player.x - 1, Player.y) and not is_solid(Player.x - 1, Player.y + 7) then
-					Player.x -= 1
+				PlayerState.spriteNum = Assets.playerLeftSprite
+				if not isSolid(PlayerState.x - 1, PlayerState.y) and not isSolid(PlayerState.x - 1, PlayerState.y + 7) then
+					PlayerState.x -= 1
 				end
 			end
 		end
 	end
 
-	if Game.mb == 1 and can_shoot_shotgun() then
-		fire_shotgun(Player.x + 4, Player.y + 4, Player.aim)
-		Shotgun.shoot_cooldown = 50
+	if GameState.mb == 1 and canShootShotgun() then
+		fireShotgun(PlayerState.x + 4, PlayerState.y + 4, PlayerState.aim)
+		ShotgunState.shootCooldown = 50
 	end
 
-	detect_item_on_player()
+	detectItemOnPlayer()
 end
 
-function render_player()
-	spr(Player.sprite_num, Player.x, Player.y)
+function renderPlayer()
+	spr(PlayerState.spriteNum, PlayerState.x, PlayerState.y)
 end
 
-function god_mode()
-	Shotgun.current_rounds = 1000
-	Player.health = 100000
+function godMode()
+	ShotgunState.currentRounds = 1000
+	PlayerState.health = 100000
 end
 
-function update_mouse()
+function updateMouse()
 	-- Get raw absolute position and compute how far it moved since last frame:
 	local rx = stat(32)
 	local ry = stat(33)
-	local dx = rx - Game._raw_mx
-	local dy = ry - Game._raw_my
-	Game._raw_mx = rx
-	Game._raw_my = ry
+	local dx = rx - GameState._rawMx
+	local dy = ry - GameState._rawMy
+	GameState._rawMx = rx
+	GameState._rawMy = ry
 	-- Accumulate scaled delta into virtual cursor, clamped to screen bounds:
-	Game.mx = mid(0, Game.mx + dx * Game.mouse_sens, Display.screen_w)
-	Game.my = mid(0, Game.my + dy * Game.mouse_sens, Display.screen_h)
-	Game.mb = stat(34)
+	GameState.mx = mid(0, GameState.mx + dx * GameState.mouseSens, DisplayState.screenW)
+	GameState.my = mid(0, GameState.my + dy * GameState.mouseSens, DisplayState.screenH)
+	GameState.mb = stat(34)
 end
 
-function render_crosshair()
-	line(Game.mx - 4, Game.my, Game.mx + 4, Game.my, 7)
-	line(Game.mx, Game.my - 4, Game.mx, Game.my + 4, 7)
+function renderCrosshair()
+	line(GameState.mx - 4, GameState.my, GameState.mx + 4, GameState.my, 7)
+	line(GameState.mx, GameState.my - 4, GameState.mx, GameState.my + 4, 7)
 end

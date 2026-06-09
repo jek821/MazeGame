@@ -1,14 +1,15 @@
-Game = {
-	start_time = 100,
-	current_time = 0,
-	current_map_component = Main_Component,
+GameState = {
+	startTime = 100,
+	currentTime = 0,
+	currentRoom = MainRoom,
 	mx = 64,        -- virtual cursor x, starts at screen center
 	my = 64,        -- virtual cursor y, starts at screen center
 	mb = 0,
-	_raw_mx = 0,    -- last raw stat(32) value, used to compute delta
-	_raw_my = 0,    -- last raw stat(33) value, used to compute delta
-	mouse_sens = 2, -- multiply delta by this each frame
-	zombies = {}
+	_rawMx = 0,    -- last raw stat(32) value, used to compute delta
+	_rawMy = 0,    -- last raw stat(33) value, used to compute delta
+	mouseSens = 2, -- multiply delta by this each frame
+	zombies = {},
+	locationTransitionScreen = false
 }
 
 function _init()
@@ -16,34 +17,39 @@ function _init()
 end
 
 function _update60()
-	update_mouse()
-	update_camera()
-	update_player()
-	update_gun()
-	update_timer()
-	update_exits()
+	if not GameState.locationTransitionScreen then
+
+	updateMouse()
+	updateCamera()
+	updatePlayer()
+	updateGun()
+	updateTimer()
+	updateExits()
+	end
 end
 
 function _draw()
+	if not GameState.locationTransitionScreen then
 	cls()
-	-- Shift all drawing by cam_x/cam_y so world position (0,0) scrolls with the player.
-	-- Subtract hud_h from cam_y so world y=0 lands at screen y=10, below the hud:
-	camera(Display.cam_x, Display.cam_y - Display.hud_h)
+	-- Shift all drawing by camX/camY so world position (0,0) scrolls with the player.
+	-- Subtract hudH from camY so world y=0 lands at screen y=10, below the hud:
+	camera(DisplayState.camX, DisplayState.camY - DisplayState.hudH)
 	-- Prevent drawing over the hud bar at the top of the screen:
-	clip(0, Display.hud_h, Display.screen_w, Display.view_h)
+	clip(0, DisplayState.hudH, DisplayState.screenW, DisplayState.viewH)
 
-	render_current_map_component()
-	render_component_items(Game.current_map_component)
-	render_player()
-	render_gun()
+	renderCurrentRoom()
+	renderRoomItems(GameState.currentRoom)
+	renderPlayer()
+	renderGun()
 
 	clip()
 	camera()
 
-	render_hud()
-	render_crosshair()
+	renderHud()
+	renderCrosshair()
 
-	if touching_exit then
+	if touchingExit then
 		print("EXIT TOUCHED!")
 	end
+end
 end
