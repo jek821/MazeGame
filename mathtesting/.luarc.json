@@ -1,0 +1,22 @@
+{
+  "runtime": {
+    "version": "Lua 5.4",
+    "nonstandardSymbol": ["+=", "-=", "*=", "/=", "%=", "^=", "//=", "&=", "|=", "~=", "..=", "!="]
+  },
+  "diagnostics": {
+    "disable": ["lowercase-global"],
+    "globals": [
+      "pset","pget","spr","sspr","map","mget","mset","cls","camera",
+      "btn","btnp","music","sfx","time","add","del","all","foreach",
+      "rnd","flr","ceil","abs","max","min","mid","cos","sin","atan2",
+      "sqrt","stat","poke","peek","fget","fset","line","rect","rectfill",
+      "circ","circfill","pal","palt","color","clip","cursor","print",
+      "_init","_update","_update60","_draw","tostr","tonum","sub",
+      "chr","ord","split","type","load","cstore","reload","dget","dset",
+      "cartdata","menuitem","extcmd","assert","trace","stop","printh"
+    ]
+  },
+  "workspace": {
+    "ignoreDir": []
+  }
+}
