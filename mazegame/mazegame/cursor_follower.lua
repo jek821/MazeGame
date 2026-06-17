@@ -1,15 +1,13 @@
 cursorFollowers = {}
 cursorFollowerSpeed = 2
 
-function addCursorFollower(id, startXPos, startYPos)
+function addCursorFollower(id)
     cursorFollowers.add({
-    spriteId = id,
-    xPos = 0,
-    yPos = 0,
-})
+        spriteId = id,
+        xPos = 0,
+        yPos = 0,
+    })
 end
-
-
 
 function updateCursorFollowers()
     for cursorFollower in all(cursorFollowers) do
@@ -18,10 +16,10 @@ function updateCursorFollowers()
             local dx = cursorFollower.xPos - GameState.mx
             local dy = cursorFollower.yPos - GameState.my
             -- Use pythagorean theorem to get distance
-            local distance = math.sqrt(dx*dx + dy*dy)
+            local distance = sqrt(dx * dx + dy * dy)
             -- adjust cursor_follower position using delta/distance * speed
-            cursorFollower.xPos += dx/distance * cursorFollowerSpeed
-            cursorFollower.yPos += dy/distance * cursorFollowerSpeed
+            cursorFollower.xPos += dx / distance * cursorFollowerSpeed
+            cursorFollower.yPos += dy / distance * cursorFollowerSpeed
         end
     end
 end

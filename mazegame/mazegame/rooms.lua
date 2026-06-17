@@ -9,17 +9,50 @@ MainRoom = {
 	items = {}
 }
 
-StraightHorizontalHallway = {
+StraightHorizontalHallway_toMarket = {
 	mapCol = 0,
 	mapRow = 15,
 	tileW = 16,
 	tileH = 7,
 	exits = {},
-	items = {}
+	items = {},
+	zombieSpawns = {
+		{ tileX = 10, tileY = 19 },
+		{ tileX = 12, tileY = 17 },
+	},
+	zombies = {}
 }
 
-add(MainRoom.exits, { x = 2, y = 5, dest = StraightHorizontalHallway, destX = tileToPx(1 - StraightHorizontalHallway.mapCol), destY = tileToPx(19 - StraightHorizontalHallway.mapRow), destDirection = Assets.playerRightSprite})
-add(StraightHorizontalHallway.exits, { x = 103, y = 20, dest = MainRoom, destX = tileToPx(2), destY = tileToPx(4) })
+add(MainRoom.exits,
+	{
+		x = 2,
+		y = 5,
+		dest = StraightHorizontalHallway_toMarket,
+		destX = tileToPx(1 - StraightHorizontalHallway_toMarket.mapCol),
+		destY =
+			tileToPx(19 - StraightHorizontalHallway_toMarket.mapRow),
+		destDirection = Assets.playerRightSprite
+	})
+
+
+add(StraightHorizontalHallway_toMarket.exits,
+	{ x = 103, y = 20, dest = MainRoom, destX = tileToPx(2), destY = tileToPx(4) })
+
+
+function initRoom(room)
+	room.zombies = {}
+	for spawn in all(room.zombieSpawns) do
+		add(room.zombies, {
+			xPos = (spawn.tileX - room.mapCol) * 8,
+			yPos = (spawn.tileY - room.mapRow) * 8,
+			health = 300,
+			speed = 0.5,
+			is_shot = false,
+			shot_effect_time = 30,
+			shot_time_left = 0
+		})
+	end
+end
 
 function updateExits()
 	touchingExit = false
@@ -39,6 +72,7 @@ function executeLocationTransition(exit)
 	-- Do animation on original location
 	--startTransition()
 	GameState.currentRoom = exit.dest
+	initRoom(GameState.currentRoom)
 	PlayerState.x = exit.destX
 	PlayerState.y = exit.destY
 	PlayerState.spriteNum = exit.destDirection
@@ -59,7 +93,7 @@ function updateCamera()
 	-- PlayerState.x - 64 puts player in the middle of the 128px screen.
 	-- room.tileW * 8 - DisplayState.viewW is how many pixels the camera can scroll before hitting the right edge.
 	-- max(0, ...) handles rooms narrower than the screen -- the scroll range would be negative without it:
-	DisplayState.camX = mid(0, PlayerState.x - 64,                          max(0, room.tileW * 8 - DisplayState.viewW))
+	DisplayState.camX = mid(0, PlayerState.x - 64, max(0, room.tileW * 8 - DisplayState.viewW))
 	DisplayState.camY = mid(0, PlayerState.y - flr(DisplayState.viewH / 2), max(0, room.tileH * 8 - DisplayState.viewH))
 end
 

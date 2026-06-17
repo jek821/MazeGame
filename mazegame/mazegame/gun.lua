@@ -5,7 +5,9 @@ ShotgunState = {
 	currentRounds = 6,
 	reloading = false,
 	reloadDuration = 30,
-	reloadTime = 0
+	reloadTime = 0,
+	reloadHoldTime = 0,
+	maxReloadHoldTime = 30
 }
 
 function canShootShotgun()
@@ -46,10 +48,15 @@ function updateGun()
 	end
 	if ShotgunState.currentRounds == 0 and not ShotgunState.reloading then
 		ShotgunState.reloading = true
+		ShotgunState.reloadHoldTime = 0
 	end
 	if ShotgunState.reloading then
 		if ShotgunState.currentRounds == ShotgunState.maxRounds then
-			ShotgunState.reloading = false
+			ShotgunState.reloadHoldTime += 1
+			if ShotgunState.reloadHoldTime >= ShotgunState.maxReloadHoldTime then
+				ShotgunState.reloading = false
+				ShotgunState.reloadHoldTime = 0
+			end
 		else
 			ShotgunState.reloadTime += 1
 			if ShotgunState.reloadTime == ShotgunState.reloadDuration then
@@ -70,4 +77,14 @@ function renderGun()
 			pset(PlayerState.x + 8, PlayerState.y + (7 - i), 8)
 		end
 	end
+end
+
+function getPelletCollision(spriteX, spriteY)
+	for pellet in all(ShotgunState.pellets) do
+		if abs(pellet.x - spriteX) < 8 and abs(pellet.y - spriteY) < 8 then
+			del(ShotgunState.pellets, pellet)
+			return true
+		end
+	end
+	return false
 end

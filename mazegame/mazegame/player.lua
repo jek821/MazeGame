@@ -84,16 +84,8 @@ function godMode()
 end
 
 function updateMouse()
-	-- Get raw absolute position and compute how far it moved since last frame:
-	local rx = stat(32)
-	local ry = stat(33)
-	local dx = rx - GameState._rawMx
-	local dy = ry - GameState._rawMy
-	GameState._rawMx = rx
-	GameState._rawMy = ry
-	-- Accumulate scaled delta into virtual cursor, clamped to screen bounds:
-	GameState.mx = mid(0, GameState.mx + dx * GameState.mouseSens, DisplayState.screenW)
-	GameState.my = mid(0, GameState.my + dy * GameState.mouseSens, DisplayState.screenH)
+	GameState.mx = mid(0, 64 + (stat(32) - 64) * GameState.mouseSens, 127)
+	GameState.my = mid(0, 64 + (stat(33) - 64) * GameState.mouseSens, 127)
 	GameState.mb = stat(34)
 end
 
