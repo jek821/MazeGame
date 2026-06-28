@@ -36,12 +36,6 @@
 ---@field dy number
 ---@field life integer  -- frames before the pellet despawns
 
----A sprite that chases the cursor. Built by makeCursorFollower().
----@class CursorFollower
----@field spriteId integer
----@field xPos number
----@field yPos number
-
 ---A spawn point for an enemy, expressed in map-tile coordinates.
 ---@class ZombieSpawn
 ---@field tileX integer
