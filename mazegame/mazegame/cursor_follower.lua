@@ -1,12 +1,23 @@
+---@type CursorFollower[]
 cursorFollowers = {}
 cursorFollowerSpeed = 2
 
-function addCursorFollower(id)
-    cursorFollowers.add({
+---@param id integer
+---@return CursorFollower
+function makeCursorFollower(id)
+    return {
         spriteId = id,
         xPos = 0,
         yPos = 0,
-    })
+    }
+end
+
+---@param id integer
+function addCursorFollower(id)
+    -- was `cursorFollowers.add(...)`, which is a runtime error: PICO-8's add
+    -- is a global function, not a table method. The type annotation on
+    -- `cursorFollowers` is what surfaces this -- CursorFollower[] has no `add`.
+    add(cursorFollowers, makeCursorFollower(id))
 end
 
 function updateCursorFollowers()

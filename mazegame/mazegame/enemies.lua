@@ -1,12 +1,25 @@
--- zombie AI (stub)
--- each zombie: {x, y, health}
--- stored in GameState.zombies
+-- zombie AI
+-- Zombies (see the Zombie class in types.lua) live in the current Room's
+-- `zombies` table; makeZombie() builds them from a room's spawn points.
+
+---@param xPos number
+---@param yPos number
+---@return Zombie
+function makeZombie(xPos, yPos)
+	return {
+		xPos = xPos,
+		yPos = yPos,
+		health = 300,
+		speed = 0.5,
+		is_shot = false,
+		shot_effect_time = 30,
+		shot_time_left = 0
+	}
+end
 
 
 
-
-
-
+---@param zombie Zombie
 function updateZombiePosition(zombie)
     if zombie.xPos != PlayerState.x or zombie.yPos != PlayerState.y then
         -- get deltas:
@@ -23,6 +36,7 @@ function updateZombiePosition(zombie)
     end
 end
 
+---@param ZombiesTable Zombie[]
 function updateZombies(ZombiesTable)
     for z in all(ZombiesTable) do
         if z.health <= 0 then
@@ -44,6 +58,7 @@ function updateZombies(ZombiesTable)
     end
 end
 
+---@param ZombiesTable Zombie[]
 function renderZombies(ZombiesTable)
     for z in all(ZombiesTable) do
         local sprite = Assets.zombieDLeftSprite -- TODO: pick based on direction

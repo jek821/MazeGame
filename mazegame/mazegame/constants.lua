@@ -1,3 +1,6 @@
+---@class Assets
+---@field ritualSymbolSprites integer[]
+---@field pageSprites integer[]
 Assets = {
 	-- player
 	playerDownSprite = 7,
@@ -27,20 +30,26 @@ Assets = {
 	reloadBar = 53
 }
 
+---@class Sounds
 Sounds = {
 	coinPickup = 0,
 	shotgunBlast = 1
 }
 
+---@class Flags
 Flags = {
 	solid = 1
 }
 
+---Convert a tile coordinate to a pixel coordinate (8px tiles).
+---@param t number
+---@return number
 function tileToPx(t)
 	return t * 8
 end
 
 -- Screen dimensions and derived viewport size:
+---@class DisplayState
 DisplayState = {
 	screenW = 128,  -- pico-8 screen width
 	screenH = 128,  -- pico-8 screen height

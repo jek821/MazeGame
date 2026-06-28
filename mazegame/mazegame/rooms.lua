@@ -1,14 +1,17 @@
 touchingExit = false
 
+---@type Room
 MainRoom = {
 	mapCol = 0,
 	mapRow = 0,
 	tileW = 18,
 	tileH = 14,
 	exits = {},
-	items = {}
+	items = {},
+	zombies = {}
 }
 
+---@type Room
 StraightHorizontalHallway_toMarket = {
 	mapCol = 0,
 	mapRow = 15,
@@ -36,21 +39,18 @@ add(MainRoom.exits,
 
 
 add(StraightHorizontalHallway_toMarket.exits,
-	{ x = 103, y = 20, dest = MainRoom, destX = tileToPx(2), destY = tileToPx(4) })
+	{ x = 103, y = 20, dest = MainRoom, destX = tileToPx(2), destY = tileToPx(4),
+		destDirection = Assets.playerDownSprite })
 
 
+---@param room Room
 function initRoom(room)
 	room.zombies = {}
 	for spawn in all(room.zombieSpawns) do
-		add(room.zombies, {
-			xPos = (spawn.tileX - room.mapCol) * 8,
-			yPos = (spawn.tileY - room.mapRow) * 8,
-			health = 300,
-			speed = 0.5,
-			is_shot = false,
-			shot_effect_time = 30,
-			shot_time_left = 0
-		})
+		add(room.zombies, makeZombie(
+			(spawn.tileX - room.mapCol) * 8,
+			(spawn.tileY - room.mapRow) * 8
+		))
 	end
 end
 
@@ -67,6 +67,7 @@ function updateExits()
 	end
 end
 
+---@param exit Exit
 function executeLocationTransition(exit)
 	GameState.locationTransitionScreen = true
 	-- Do animation on original location
@@ -81,6 +82,7 @@ function executeLocationTransition(exit)
 	GameState.locationTransitionScreen = false
 end
 
+---@param room Room
 function renderRoomItems(room)
 	for item in all(room.items) do
 		spr(item.id, item.x, item.y)

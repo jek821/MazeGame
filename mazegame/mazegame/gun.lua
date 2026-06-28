@@ -1,3 +1,5 @@
+---@class ShotgunState
+---@field pellets Pellet[]
 ShotgunState = {
 	pellets = {},
 	shootCooldown = 0,
@@ -10,27 +12,38 @@ ShotgunState = {
 	maxReloadHoldTime = 30
 }
 
+---@return boolean
 function canShootShotgun()
 	return ShotgunState.shootCooldown == 0
 		and not ShotgunState.reloading
 		and ShotgunState.currentRounds > 0
 end
 
+---Build a single pellet travelling along angle a (PICO-8 turns, 0..1).
+---@param x number
+---@param y number
+---@param a number
+---@return Pellet
+function makePellet(x, y, a)
+	return {
+		x = x,
+		y = y,
+		dx = cos(a) * 3,
+		dy = sin(a) * 3,
+		life = 20
+	}
+end
+
+---@param px number
+---@param py number
+---@param aimAngle number
 function fireShotgun(px, py, aimAngle)
 	music(Sounds.shotgunBlast)
 	ShotgunState.currentRounds -= 1
 	local spread = 0.10
 	for i = 1, 8 do
 		local a = aimAngle + rnd(spread) - spread / 2
-		add(
-			ShotgunState.pellets, {
-				x = px,
-				y = py,
-				dx = cos(a) * 3,
-				dy = sin(a) * 3,
-				life = 20
-			}
-		)
+		add(ShotgunState.pellets, makePellet(px, py, a))
 	end
 end
 
@@ -79,6 +92,11 @@ function renderGun()
 	end
 end
 
+---True if any live pellet overlaps the 8x8 sprite at (spriteX, spriteY).
+---Consumes the pellet on hit.
+---@param spriteX number
+---@param spriteY number
+---@return boolean
 function getPelletCollision(spriteX, spriteY)
 	for pellet in all(ShotgunState.pellets) do
 		if abs(pellet.x - spriteX) < 8 and abs(pellet.y - spriteY) < 8 then

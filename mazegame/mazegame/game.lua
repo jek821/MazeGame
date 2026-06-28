@@ -1,3 +1,6 @@
+---@class GameState
+---@field currentRoom Room
+---@field zombies Zombie[]
 GameState = {
 	startTime = 100,
 	currentTime = 0,

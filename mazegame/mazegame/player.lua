@@ -1,3 +1,5 @@
+---@class PlayerState
+---@field spriteNum integer
 PlayerState = {
 	spriteNum = Assets.playerDownSprite,
 	x = 68,
@@ -8,6 +10,10 @@ PlayerState = {
 	coins = 0
 }
 
+---True if the map tile under world pixel (x, y) has the solid flag set.
+---@param x number
+---@param y number
+---@return boolean
 function isSolid(x, y)
 	local mapX = flr(x / 8) + GameState.currentRoom.mapCol
 	local mapY = flr(y / 8) + GameState.currentRoom.mapRow
