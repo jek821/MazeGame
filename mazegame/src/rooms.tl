@@ -7,7 +7,7 @@ MainRoom = {
    tileH = 14,
    exits = {},
    items = {},
-   zombies = {},
+   zombies = {}
 }
 
 StraightHorizontalHallway_toMarket = {
@@ -21,34 +21,34 @@ StraightHorizontalHallway_toMarket = {
    zombieSpawns = {
       { tileX = 10, tileY = 19 },
       { tileX = 12, tileY = 17 },
-   },
+   }
 }
 
 add(MainRoom.exits,
-{
-   x = 2,
-   y = 5,
-   dest = StraightHorizontalHallway_toMarket,
-   destX = tileToPx(1 - StraightHorizontalHallway_toMarket.mapCol),
-   destY = tileToPx(19 - StraightHorizontalHallway_toMarket.mapRow),
-   destDirection = Assets.playerRightSprite,
-})
+   {
+      x = 2,
+      y = 5,
+      dest = StraightHorizontalHallway_toMarket,
+      destX = tileToPx(1 - StraightHorizontalHallway_toMarket.mapCol),
+      destY = tileToPx(19 - StraightHorizontalHallway_toMarket.mapRow),
+      destDirection = Assets.playerRightSprite
+   })
 
 add(StraightHorizontalHallway_toMarket.exits,
-{ x = 103, y = 20, dest = MainRoom, destX = tileToPx(2), destY = tileToPx(4),
-destDirection = Assets.playerDownSprite, })
+   { x = 103, y = 20, dest = MainRoom, destX = tileToPx(2), destY = tileToPx(4),
+      destDirection = Assets.playerDownSprite })
 
-function initRoom(room)
+global function initRoom(room: Room)
    room.zombies = {}
    for spawn in all(room.zombieSpawns) do
       add(room.zombies, makeZombie(
-      (spawn.tileX - room.mapCol) * 8,
-      (spawn.tileY - room.mapRow) * 8))
-
+         (spawn.tileX - room.mapCol) * 8,
+         (spawn.tileY - room.mapRow) * 8
+      ))
    end
 end
 
-function updateExits()
+global function updateExits()
    touchingExit = false
    for e in all(GameState.currentRoom.exits) do
       local ex = tileToPx(e.x)
@@ -61,33 +61,33 @@ function updateExits()
    end
 end
 
-function executeLocationTransition(exit)
+global function executeLocationTransition(exit: Exit)
    GameState.locationTransitionScreen = true
-
+   -- Do animation on original location
    GameState.currentRoom = exit.dest
    initRoom(GameState.currentRoom)
    PlayerState.x = exit.destX
    PlayerState.y = exit.destY
    PlayerState.spriteNum = exit.destDirection
-
+   -- Do animation on new location
    GameState.locationTransitionScreen = false
 end
 
-function renderRoomItems(room)
+global function renderRoomItems(room: Room)
    for item in all(room.items) do
       spr(item.id, item.x, item.y)
    end
 end
 
-function updateCamera()
+global function updateCamera()
    local room = GameState.currentRoom
-
+   -- Keep player centered on screen, but stop scrolling before the room edge.
    DisplayState.camX = mid(0, PlayerState.x - 64, max(0, room.tileW * 8 - DisplayState.viewW))
    DisplayState.camY = mid(0, PlayerState.y - flr(DisplayState.viewH / 2), max(0, room.tileH * 8 - DisplayState.viewH))
 end
 
-function renderCurrentRoom()
+global function renderCurrentRoom()
    local room = GameState.currentRoom
-
+   -- Draw the room's tiles starting at map cell (mapCol, mapRow) at world (0,0):
    map(room.mapCol, room.mapRow, 0, 0, room.tileW, room.tileH)
 end

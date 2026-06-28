@@ -2,21 +2,21 @@ GameState = {
    startTime = 100,
    currentTime = 0,
    currentRoom = MainRoom,
-   mx = 64,
-   my = 64,
+   mx = 64,    -- cursor x (screen space)
+   my = 64,    -- cursor y (screen space)
    mb = 0,
    mouseSens = 1.5,
    zombies = {},
-   locationTransitionScreen = false,
+   locationTransitionScreen = false
 }
 
-function _init()
+global function _init()
    poke(0x5f2d, 1)
    initRoom(GameState.currentRoom)
    godMode()
 end
 
-function _update60()
+global function _update60()
    if not GameState.locationTransitionScreen then
       updateMouse()
       updateCamera()
@@ -28,13 +28,13 @@ function _update60()
    end
 end
 
-function _draw()
+global function _draw()
    if not GameState.locationTransitionScreen then
       cls()
-
-
+      -- Shift all drawing by camX/camY so world (0,0) scrolls with the player.
+      -- Subtract hudH from camY so world y=0 lands at screen y=10, below the hud:
       camera(DisplayState.camX, DisplayState.camY - DisplayState.hudH)
-
+      -- Prevent drawing over the hud bar at the top of the screen:
       clip(0, DisplayState.hudH, DisplayState.screenW, DisplayState.viewH)
 
       renderCurrentRoom()

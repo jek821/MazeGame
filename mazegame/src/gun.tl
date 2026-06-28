@@ -7,27 +7,27 @@ ShotgunState = {
    reloadDuration = 30,
    reloadTime = 0,
    reloadHoldTime = 0,
-   maxReloadHoldTime = 30,
+   maxReloadHoldTime = 30
 }
 
-function canShootShotgun()
-   return ShotgunState.shootCooldown == 0 and
-   not ShotgunState.reloading and
-   ShotgunState.currentRounds > 0
+global function canShootShotgun(): boolean
+   return ShotgunState.shootCooldown == 0
+      and not ShotgunState.reloading
+      and ShotgunState.currentRounds > 0
 end
 
-
-function makePellet(x, y, a)
+-- Build a single pellet travelling along angle a (PICO-8 turns, 0..1).
+global function makePellet(x: number, y: number, a: number): Pellet
    return {
       x = x,
       y = y,
       dx = cos(a) * 3,
       dy = sin(a) * 3,
-      life = 20,
+      life = 20
    }
 end
 
-function fireShotgun(px, py, aimAngle)
+global function fireShotgun(px: number, py: number, aimAngle: number)
    music(Sounds.shotgunBlast)
    ShotgunState.currentRounds = ShotgunState.currentRounds - 1
    local spread = 0.10
@@ -37,7 +37,7 @@ function fireShotgun(px, py, aimAngle)
    end
 end
 
-function updateGun()
+global function updateGun()
    if ShotgunState.shootCooldown > 0 then
       ShotgunState.shootCooldown = ShotgunState.shootCooldown - 1
    end
@@ -70,7 +70,7 @@ function updateGun()
    end
 end
 
-function renderGun()
+global function renderGun()
    for p in all(ShotgunState.pellets) do
       pset(p.x, p.y, 8)
    end
@@ -82,7 +82,7 @@ function renderGun()
    end
 end
 
-function getPelletCollision(spriteX, spriteY)
+global function getPelletCollision(spriteX: number, spriteY: number): boolean
    for pellet in all(ShotgunState.pellets) do
       if abs(pellet.x - spriteX) < 8 and abs(pellet.y - spriteY) < 8 then
          del(ShotgunState.pellets, pellet)

@@ -1,8 +1,8 @@
+-- zombie AI
+-- Zombies (see the Zombie record in pico8.d.tl) live in the current Room's
+-- `zombies` table; makeZombie() builds them from a room's spawn points.
 
-
-
-
-function makeZombie(xPos, yPos)
+global function makeZombie(xPos: number, yPos: number): Zombie
    return {
       xPos = xPos,
       yPos = yPos,
@@ -10,20 +10,20 @@ function makeZombie(xPos, yPos)
       speed = 0.5,
       is_shot = false,
       shot_effect_time = 30,
-      shot_time_left = 0,
+      shot_time_left = 0
    }
 end
 
-function updateZombiePosition(zombie)
+global function updateZombiePosition(zombie: Zombie)
    if zombie.xPos ~= PlayerState.x or zombie.yPos ~= PlayerState.y then
-
+      -- get deltas:
       local dx = PlayerState.x - zombie.xPos
       local dy = PlayerState.y - zombie.yPos
-
+      -- use pythagorean theorem to get distance
       local distance = sqrt(dx * dx + dy * dy)
-
+      -- stop at player border instead of overlapping
       if distance <= 8 then return end
-
+      -- shot zombies are slowed to a third of their speed
       local effectiveSpeed = zombie.speed
       if zombie.is_shot then effectiveSpeed = zombie.speed / 3 end
       zombie.xPos = zombie.xPos + dx / distance * effectiveSpeed
@@ -31,7 +31,7 @@ function updateZombiePosition(zombie)
    end
 end
 
-function updateZombies(ZombiesTable)
+global function updateZombies(ZombiesTable: {Zombie})
    for z in all(ZombiesTable) do
       if z.health <= 0 then
          del(ZombiesTable, z)
@@ -52,9 +52,9 @@ function updateZombies(ZombiesTable)
    end
 end
 
-function renderZombies(ZombiesTable)
+global function renderZombies(ZombiesTable: {Zombie})
    for z in all(ZombiesTable) do
-      local sprite = Assets.zombieDLeftSprite
+      local sprite = Assets.zombieDLeftSprite -- TODO: pick based on direction
       if z.is_shot then
          for c = 1, 15 do pal(c, 8) end
          spr(sprite, z.xPos - 1, z.yPos)
